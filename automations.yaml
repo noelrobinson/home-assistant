@@ -389,7 +389,7 @@
   description: Set target battery level to high min level to prevent discharge into the EV
   trigger:
     - platform: time_pattern
-      minutes: "/5"
+      minutes: "/2"
   condition:
     - condition: state
       entity_id: "binary_sensor.tesla_wall_connector_contactor_closed"
@@ -426,7 +426,7 @@
   description: Set target battery level to low when not charging EV
   trigger:
     - platform: time_pattern
-      minutes: "/15"
+      minutes: "/2"
   condition:
     - condition: state
       entity_id: "binary_sensor.tesla_wall_connector_contactor_closed"
