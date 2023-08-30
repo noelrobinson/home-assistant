@@ -1,0 +1,820 @@
+
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+#  themes: !include_dir_merge_named themes
+
+# Creation of utility meters has been disabled to have more flexibility (e.g. net meters)
+powercalc:
+#  create_utility_meters: true
+
+logger:
+  default: info
+  logs:
+    homeassistant.components.rest: info
+  #   custom_components.powercalc: debug
+
+input_boolean:
+
+  prioritise_ev_charging:
+    name: prioritise_ev_charging
+    initial: false
+
+input_select:
+
+  living_room_hvac_mode:
+    name: living_room_hvac_mode
+    options:
+      - 'heat'
+      - 'off'
+    initial: 'off'
+
+input_number:
+
+  # Min 10 (to avoid going up to quickly), step every 5min to easier use
+  ground_floor_temp_target_min_cycle_duration:
+    name: ground_floor_temp_target_min_cycle_duration
+    initial: 30
+    min: 1
+    max: 60
+    step: 1
+
+  ground_floor_temp_target_margin:
+    name: ground_floor_temp_target_margin
+    initial: 0.5
+    min: 0.1
+    max: 1.0
+    step: 0.1
+    unit_of_measurement: "°C"
+
+  ground_floor_temp_target:
+    name: ground_floor_temp_target
+    initial: 21.5
+    min: 18.0
+    max: 22.5
+    step: 0.1
+    unit_of_measurement: "°C"
+
+  living_room_temp_target:
+    name: living_room_temp_target
+    initial: 18.5
+    min: 15.5
+    max: 22.5
+    step: 0.5
+    unit_of_measurement: "°C"
+
+  min_battery_target:
+    name: min_battery_target
+    initial: 11
+    min: 10
+    max: 92
+
+  max_battery_target:
+    name: max_battery_target
+    initial: 92
+    min: 10
+    max: 92
+
+  new_battery_target:
+    name: new_battery_target
+    initial: 10
+    min: 10
+    max: 92
+
+  evening_immersion_target:
+    name: evening_immersion_target
+    unit_of_measurement: 'kWh'
+    initial: 2.0
+    min: 0.0
+    max: 5.0
+    step: 0.1
+
+  night_min_immersion_target:
+    name: night_min_immersion_target
+    unit_of_measurement: 'kWh'
+    initial: 3
+    min: 0
+    max: 8
+    step: 0.1
+
+  night_immersion_target:
+    name: night_immersion_target
+    unit_of_measurement: 'kWh'
+    initial: 9
+    min: 0
+    max: 12
+    step: 0.1
+
+  max_temp_idle_seconds:
+    name: max_temp_idle_seconds
+    initial: 180
+    min: 15
+    max: 300
+
+  electricity_tariff_cost:
+    name: electricity_tariff_cost
+    unit_of_measurement: 'GBP/kWh'
+    initial: 0.0
+    min: 0.0
+    max: 1.0
+
+automation: !include automations.yaml
+#script: !include scripts.yaml
+#scene: !include scenes.yaml
+
+template:
+  - sensor:
+      - name: "Solax Cloud Yield Today"
+        state: "{{ state_attr('sensor.solax_rest_cloud', 'yieldtoday') }}"
+        unit_of_measurement: "kWh"
+        unique_id: solax_2
+        icon: mdi:flash
+        device_class: energy
+        state_class: total_increasing
+
+      # TODO: change name
+      - name: "Solax Cloud Yield Total"
+        state: "{{ state_attr('sensor.solax_rest_cloud', 'yieldtotal') }}"
+        unit_of_measurement: "kWh"
+        unique_id: solax_3
+        icon: mdi:flash
+        device_class: energy
+        state_class: total_increasing
+
+      - name: "Solax Cloud Inverter"
+        unit_of_measurement: "W"
+        state: "{{ state_attr('sensor.solax_rest_cloud', 'acpower') }}"
+        unique_id: solax_cloud_inverter
+        icon: mdi:flash
+        device_class: energy
+        state_class: measurement
+
+      - name: "Solax Cloud Upload Time"
+        state: >
+          {% set time = state_attr('sensor.solax_rest_cloud', 'uploadTime') %}
+          {{ as_timestamp(time) | timestamp_custom('%I:%M %p') }}
+        unique_id: solax_5
+        icon: mdi:clock
+
+      - name: "Solax Cloud Battery Status"
+        state: "{{ state_attr('sensor.solax_rest_cloud', 'batStatus') }}"
+        unique_id: solax_6
+        icon: mdi:battery
+
+      - name: "Solax Cloud Solar Panel"
+        state: "{{ state_attr('sensor.solax_rest_cloud', 'powerdc1') + state_attr('sensor.solax_rest_cloud', 'powerdc2') }}"
+        unit_of_measurement: "W"
+        device_class: energy
+        state_class: measurement
+        unique_id: solax_cloud_solar_panel
+        icon: mdi:solar-power-variant
+
+      # Battery use
+      #    - name: "Solax Cloud Battery Use"
+      #      unique_id: solax_cloud_battery_use
+      #      state: >
+      #       {{ state_attr('sensor.solax_rest_cloud', 'batPower') }}
+      #      unit_of_measurement: "W"
+      #      device_class: energy
+      #      state_class: measurement
+      #      icon: mdi:battery
+
+      # Battery use - with correction (assuming 100% conversion rate in inverter, 50W loss for running inverter & battery)
+      - name: "Solax Cloud Battery Adjusted"
+        unique_id: solax_cloud_battery_adjusted
+        state: >
+          {% set ac = states('sensor.solax_cloud_inverter')|int %}
+          {% set pv = states('sensor.solax_cloud_solar_panel')|int %}
+          {{ (0 - ac + pv - 50) if (ac + pv != 0) else 0 }}
+        unit_of_measurement: "W"
+        device_class: energy
+        state_class: measurement
+        icon: mdi:battery
+
+      # Battery in power (charing)
+      #    - name: "Solax Cloud Battery Use In"
+      #      unique_id: solax_cloud_battery_use_in
+      #      state: >
+      #        {% set batAdj = states('sensor.solax_cloud_battery_adjusted')|int(default=0) %}
+      #        {{ batAdj if is_number(batAdj) and (batAdj|int > 0) else 0 }}
+      #      unit_of_measurement: "W"
+      #      icon: mdi:battery
+
+      # Battery out power (discharging)
+      #    - name: "Solax Cloud Battery Use Out"
+      #      unique_id: solax_cloud_battery_use_out
+      #      state: >
+      #        {% set batAdj = states('sensor.solax_cloud_battery_adjusted')|int(default=0) %}
+      #        {{ (0 - batAdj) if is_number(batAdj) and (batAdj|int < 0) else 0 }}
+      #      unit_of_measurement: "W"
+      #      icon: mdi:battery
+
+      # Battery level (in %)
+      - name: "Solax Cloud Battery"
+        state: "{{ state_attr('sensor.solax_rest_cloud', 'soc') }}"
+        unit_of_measurement: "%"
+        device_class: battery
+        state_class: measurement
+        unique_id: solax_12
+        icon: mdi:battery
+
+      - name: "Solax Cloud Grid Power"
+        state: >
+          {% set attr = state_attr('sensor.solax_rest_cloud', 'feedinpower') %}
+          {{ (0 - attr) if is_number(attr) else 0 }}
+        unit_of_measurement: "W"
+        device_class: energy
+        state_class: measurement
+        unique_id: solax_cloud_grid_power
+        icon: mdi:transmission-tower
+
+      #    - name: "Solax Cloud Grid Power in"
+      #      state: >
+      #        {% set attr = state_attr('sensor.solax_rest_cloud', 'feedinpower') %}
+      #        {{ (0 - attr) if is_number(attr) and (attr|float < 0) else 0 }}
+      #      unit_of_measurement: "W"
+      #      unique_id: solax_14
+      #      icon: mdi:transmission-tower
+
+      #    - name: "Solax Cloud Grid Power out"
+      #      state: >
+      #        {% set attr = state_attr('sensor.solax_rest_cloud', 'feedinpower') %}
+      #        {{ attr if is_number(attr) and (attr|float > 0) else 0 }}
+      #      unit_of_measurement: "W"
+      #      unique_id: solax_15
+      #      icon: mdi:transmission-tower
+
+      # TODO: change name; total feed in
+      - name: "Solax Cloud Energy To Grid"
+        state: "{{ state_attr('sensor.solax_rest_cloud', 'feedinenergy') }}"
+        unit_of_measurement: "kWh"
+        unique_id: solax_16
+        icon: mdi:transmission-tower
+        device_class: energy
+        state_class: total_increasing
+
+      # Total consumed
+      - name: "Solax Cloud Energy From Grid"
+        state: "{{ state_attr('sensor.solax_rest_cloud', 'consumeenergy') }}"
+        unit_of_measurement: "kWh"
+        unique_id: solax_cloud_energy_from_grid
+        icon: mdi:transmission-tower
+        device_class: energy
+        state_class: total_increasing
+
+      - name: "Solax Cloud Status"
+        unique_id: solax_20
+        icon: mdi:solar-power-variant
+        state: >
+          {% set attr = state_attr('sensor.solax_rest_cloud', 'inverterStatus') %}
+          {% if attr == '100' %}Wait
+          {% elif attr == '101' %}Check
+          {% elif attr == '102' %}Normal
+          {% elif attr == '103' %}Fault
+          {% elif attr == '104' %}Permanent Fault
+          {% elif attr == '105' %}Update
+          {% elif attr == '106' %}EPS Check
+          {% elif attr == '107' %}EPS
+          {% elif attr == '108' %}Self-test
+          {% elif attr == '109' %}Idle
+          {% elif attr == '110' %}Standby
+          {% elif attr == '111' %}Pv Wake Up Bat
+          {% elif attr == '112' %}Gen Check
+          {% elif attr == '113' %}Gen Run
+          {% else %}unknown{% endif %}
+
+      - name: SolaX Cloud Total Home Use
+        unique_id: home use
+        state: >
+          {% set battery = states('sensor.solax_battery_use') %}
+          {% set grid = states('sensor.solax_grid_power') %}
+          {% set solar = states('sensor.solar_panel_power') %}
+          {% set total = 0 - battery|float if is_number(battery) else 0 %}
+          {% set total = total + (solar|float if is_number(solar) else 0) %}
+          {% set total = total + (grid|float if is_number(grid) else 0) %}
+          {{ total }}
+        state_class: measurement
+        icon: 'mdi:flash'
+        unit_of_measurement: W
+        device_class: power
+
+      # --- LOCAL --------------------------
+
+      ### Local sensor readings ###
+      # Each valid SN seems to be 10 characters
+      - name: solax_local
+        state: >
+          {% if state_attr('sensor.solax_rest_local', 'sn')|length == 10  %}
+            {{ now().strftime("%H:%M:%S") }}
+          {% else %}
+            {{ (states('sensor.solax_local')) }}
+          {% endif %}
+        attributes:
+          sn: >-
+            {% if state_attr('sensor.solax_rest_local', 'sn')|length == 10 %}
+              {{ (state_attr('sensor.solax_rest_local', 'sn')) }}
+            {% else %}
+              {{ (state_attr('sensor.solax_local', 'sn')) }}
+            {% endif %}
+          ver: >-
+            {% if state_attr('sensor.solax_rest_local', 'sn')|length == 10 %}
+              {{ (state_attr('sensor.solax_rest_local', 'ver')) }}
+            {% else %}
+              {{ (state_attr('sensor.solax_local', 'ver')) }}
+            {% endif %}
+          type: >-
+            {% if state_attr('sensor.solax_rest_local', 'sn')|length == 10 %}
+              {{ (state_attr('sensor.solax_rest_local', 'type')) }}
+            {% else %}
+              {{ (state_attr('sensor.solax_local', 'type')) }}
+            {% endif %}
+          Data: >-
+            {% if state_attr('sensor.solax_rest_local', 'sn')|length == 10 %}
+              {{ (state_attr('sensor.solax_rest_local', 'Data')) }}
+            {% else %}
+              {{ (state_attr('sensor.solax_local', 'Data')) }}
+            {% endif %}
+          Information: >-
+            {% if state_attr('sensor.solax_rest_local', 'sn')|length == 10 %}
+              {{ (state_attr('sensor.solax_rest_local', 'Information')) }}
+            {% else %}
+              {{ (state_attr('sensor.solax_local', 'Information')) }}
+            {% endif %}
+
+      ### Make the settings look like sensor data by embedding the info in the Data attribute
+      - name: solax_local_settings
+        state: >
+          {{ now().strftime("%H:%M:%S") }}
+        attributes:
+          Data: >-
+            {{ (states('sensor.solax_rest_local_settings')) }}
+
+      #### Combined Solar PV output ####
+
+      - name: "Solax Local PV Output"
+        unique_id: solax_local_pv_output
+        state: "{{ (state_attr('sensor.solax_local', 'Data')[8] + state_attr('sensor.solax_local', 'Data')[9]) | int(default=0) }}"
+        unit_of_measurement: "W"
+        state_class: measurement
+        device_class: "power"
+
+      ### Inverter output (negative for charging battery) ####
+      - name: "Solax Local Inverter Power"
+        unique_id: solax_local_inverter_power
+        state: >
+          {% if state_attr('sensor.solax_local', 'Data')[2] > 32767 %}{{ (state_attr('sensor.solax_local', 'Data')[2] - 65536) | int(default=0) }}
+          {% else %}{{ state_attr('sensor.solax_local', 'Data')[2] | int(default=0) }}{% endif %}
+        unit_of_measurement: "W"
+        state_class: measurement
+        device_class: "power"
+
+      # Inverter using the grid
+      - name: "Solax Local Inverter in Power"
+        unique_id: solax_local_inverter_in_power
+        state: >
+          {% set val = states('sensor.solax_local_inverter_power')|int(default=0) %}
+          {{ (0 - val) if is_number(val) and (val|int < 0) else 0 }}
+        unit_of_measurement: "W"
+        icon: mdi:battery
+
+      # Inverter feeding the grid & load
+      - name: "Solax Local Inverter Out Power"
+        unique_id: solax_local_inverter_out_power
+        state: >
+          {% set val = states('sensor.solax_local_inverter_power')|int(default=0) %}
+          {{ val if is_number(val) and (val|int > 0) else 0 }}
+        unit_of_measurement: "W"
+        icon: mdi:battery
+
+      ### Battery current, voltage and temperature ###
+      - name: "Solax Local Battery Voltage"
+        unique_id: solax_local_battery_voltage
+        state: "{{ state_attr('sensor.solax_local', 'Data')[14] | float / 100}}"
+        unit_of_measurement: "V"
+        device_class: "voltage"
+
+      - name: "Solax Local Battery Current"
+        unique_id: solax_local_battery_current
+        state: >
+          {% if state_attr('sensor.solax_local', 'Data')[15] > 32767 %}{{ (state_attr('sensor.solax_local', 'Data')[15] - 65536) / 100 }}
+          {% else %}{{ state_attr('sensor.solax_local', 'Data')[15] / 100 }}{% endif %}
+        unit_of_measurement: "A"
+        device_class: "current"
+
+      - name: "Solax Local Battery Temperature"
+        unique_id: solax_local_battery_temp
+        state: "{{ state_attr('sensor.solax_local', 'Data')[17] | int(default=0) }}"
+        unit_of_measurement: "°C"
+        device_class: "temperature"
+
+      ### Battery charging/discharging power (positive for charging the battery) ###
+      - name: "Solax Local Battery Power"
+        unique_id: solax_local_battery_power
+        state:  >
+          {% if state_attr('sensor.solax_local', 'Data')[16] > 32767 %}{{ state_attr('sensor.solax_local', 'Data')[16] - 65536 }}
+          {% else %}{{ state_attr('sensor.solax_local', 'Data')[16] }}{% endif %}
+        unit_of_measurement: "W"
+        state_class: measurement
+        device_class: "power"
+
+      # Assuming 75W for running inverter and battery plus 95% conversion efficiency; if above 1kW, trust the inverter
+      - name: "Solax Local Battery Power Adjusted"
+        unique_id: solax_local_battery_power_adjusted
+        state:  >
+          {% set ac = states('sensor.solax_local_inverter_power')|int %}
+          {% set battery = states('sensor.solax_local_battery_power')|int %}
+          {% set pv = (states('sensor.solax_local_pv_output')|float * 0.95)| round(0) %}
+          {% set adjusted = (0 - ac + pv - 75) if (ac + pv != 0) else 0 %}
+          {{ adjusted if (adjusted < battery and adjusted < 1000) else battery }}
+        unit_of_measurement: "W"
+        #state_class: measurement
+        device_class: "power"
+
+      # Battery in power (charing)
+      - name: "Solax Local Battery Use In"
+        unique_id: solax_local_battery_use_in
+        state: >
+          {% set batAdj = states('sensor.solax_local_battery_power_adjusted')|int(default=0) %}
+          {{ batAdj if is_number(batAdj) and (batAdj|int > 0) else 0 }}
+        unit_of_measurement: "W"
+        icon: mdi:battery
+
+      # Battery out power (discharging)
+      - name: "Solax Local Battery Use Out"
+        unique_id: solax_local_battery_use_out
+        state: >
+          {% set batAdj = states('sensor.solax_local_battery_power_adjusted')|int(default=0) %}
+          {{ (0 - batAdj) if is_number(batAdj) and (batAdj|int < 0) else 0 }}
+        unit_of_measurement: "W"
+        icon: mdi:battery
+
+      ### Battery charge level (%)
+      - name: "Solax Local Battery SoC"
+        unique_id: solax_local_battery_soc
+        state: "{{ state_attr('sensor.solax_local', 'Data')[18] | int(default=0) }}"
+        unit_of_measurement: "%"
+
+      ### Battery discharge min (%)
+      - name: "Solax Local Battery Min SoC"
+        unique_id: solax_local_battery_min_soc
+        state: "{{ state_attr('sensor.solax_local_settings', 'Data')[0] | int(default=0) }}"
+        unit_of_measurement: "%"
+
+      ### Battery charge from grid switch
+      - name: "Solax Local Battery Charge From Grid Enabled"
+        unique_id: solax_local_battery_grid_enabled
+        state: "{{ state_attr('sensor.solax_local_settings', 'Data')[1] | int(default=0) }}"
+
+      ### Battery charge level to (%) from grid
+      - name: "Solax Local Battery Charge From Grid To"
+        unique_id: solax_local_battery_charge_from_grid_to
+        state: "{{ state_attr('sensor.solax_local_settings', 'Data')[2] | int(default=0) }}"
+        unit_of_measurement: "%"
+
+      ### Battery settings charge/discharge (period 1) ###
+      - name: "Solax Local Battery Setting Start Charge"
+        state: "{{'%02d' % ((state_attr('sensor.solax_local_settings', 'Data')[3])%256 | int(default=0)) }}:{{'%02d' %((state_attr('sensor.solax_local_settings', 'Data')[3])/256) | int(default=0)}} "
+      - name: "Solax Local Battery Setting Stop Charge"
+        state: "{{'%02d' % ((state_attr('sensor.solax_local_settings', 'Data')[4])%256 | int(default=0)) }}:{{'%02d' % ((state_attr('sensor.solax_local_settings', 'Data')[4])/256) | int(default=0)}} "
+      - name: "Solax Local Battery Setting Start Discharge"
+        state: "{{'%02d' % ((state_attr('sensor.solax_local_settings', 'Data')[5])%256 | int(default=0)) }}:{{'%02d' % ((state_attr('sensor.solax_local_settings', 'Data')[5])/256) | int(default=0)}} "
+      - name: "Solax Local Battery Setting Stop Discharge"
+        state: "{{'%02d' % ((state_attr('sensor.solax_local_settings', 'Data')[6])%256 | int(default=0)) }}:{{ '%02d' % ((state_attr('sensor.solax_local_settings', 'Data')[6])/256) | int(default=0)}} "
+
+      ### Battery charge/discharge period2 enabled
+#      - name: "Solax Local Battery ChD2 Enabled"
+#        unique_id: solax_local_battery_chd2_enabled
+#        state: "{{ state_attr('sensor.solax_local_settings', 'Data')[7] | int(default=0) }}"
+
+      ### Estimated remaining energy ###
+      - name: "Solax Local Battery Remain Energy"
+        unique_id: solax_local_battery_kwh
+        state: "{{ states('sensor.solax_local_battery_soc') | int(default=0) * 5.8 / 100 }}"
+        unit_of_measurement: "kWh"
+        device_class: "energy"
+
+      ### Feed-in power (positive for feed-in, negative for consumption) ###
+      - name: "Solax Local Feedin Power"
+        unique_id: solax_local_feedin_power
+        state:  >
+          {% if state_attr('sensor.solax_local', 'Data')[32] > 32767 %}{{ (state_attr('sensor.solax_local', 'Data')[32] - 65536) }}
+          {% else %}{{ state_attr('sensor.solax_local', 'Data')[32] }}{% endif %}
+        unit_of_measurement: "W"
+        state_class: measurement
+        device_class: "power"
+
+      ### Grid power (positive for consumption) ###
+      - name: "Solax Local Grid Power"
+        unique_id: solax_local_grid_power
+        state: >
+          {% set val = states('sensor.solax_local_feedin_power')|int(default=0) %}
+          {{ (0 - val) }}
+        unit_of_measurement: "W"
+        device_class: "power"
+
+      # Grid used (consumption)
+      - name: "Solax Local Grid Used Power"
+        unique_id: solax_local_grid_used_power
+        state: >
+          {% set val = states('sensor.solax_local_grid_power')|int(default=0) %}
+          {{ val if is_number(val) and (val|int > 0) else 0 }}
+        unit_of_measurement: "W"
+
+      # Grid feed-in (export)
+      - name: "Solax Local Grid Export Power"
+        unique_id: solax_local_grid_export_power
+        state: >
+          {% set val = states('sensor.solax_local_grid_power')|int(default=0) %}
+          {{ (0 - val) if is_number(val) and (val|int < 0) else 0 }}
+        unit_of_measurement: "W"
+
+      ### Expected household load (negative not expected as it only consumes energy) ###
+      - name: "Solax Local Load Power"
+        unique_id: solax_local_load_power
+        state: "{{ states('sensor.solax_local_inverter_power')| float(default=0) - states('sensor.solax_local_feedin_power') | int(default=0) }}"
+        unit_of_measurement: "W"
+        device_class: "power"
+
+      # Tariff Use Stats
+      - name: "Night Tariff Use"
+        unique_id: night_tariff_use
+        state: "{{ (states('sensor.daily_grid_offpeak')| float(default=0) / (states('sensor.daily_grid_offpeak')| float(default=0) + states('sensor.daily_grid_peak') | float(default=0)) * 100) | round(0) }}"
+        unit_of_measurement: "%"
+
+      ### Estimated self-use energy ###
+      - name: "Solax Local Self Use Aggregated Energy"
+        unique_id: solax_local_self_use_aggregated_energy
+        state: "{{ states('sensor.solax_local_inverter_aggregated_energy') | float(default=0) - states('sensor.solax_local_grid_export_aggregated_energy') | float(default=0) }}"
+        unit_of_measurement: "kWh"
+        state_class: measurement
+        device_class: "energy"
+
+      # Total today's heap pump
+      - name: heat_pump_today
+        unique_id: heat_pump_today
+        unit_of_measurement: "kWh"
+        state_class: measurement
+        device_class: "energy"
+        state: "{{ states('sensor.lounge_daily_heat_energy_consumption') | float(default=0) + states('sensor.amelia_s_bedroom_daily_heat_energy_consumption') | float(default=0) + states('sensor.master_bedroom_daily_heat_energy_consumption') | float(default=0) + states('sensor.adam_s_bedroom_daily_heat_energy_consumption') | float(default=0)}}"
+
+      # Total yearly heap pump
+      - name: heat_pump_yearly
+        unique_id: heat_pump_yearly
+        unit_of_measurement: "kWh"
+        device_class: "energy"
+        state: "{{ states('sensor.lounge_yearly_heat_energy_consumption') | float(default=0) + states('sensor.amelia_s_bedroom_yearly_heat_energy_consumption') | float(default=0) + states('sensor.master_bedroom_yearly_heat_energy_consumption') | float(default=0) + states('sensor.adam_s_bedroom_yearly_heat_energy_consumption') | float(default=0)}}"
+
+      # Total today's zappi
+      - name: zappi_today
+        unique_id: zappi_today
+        unit_of_measurement: "kWh"
+        state_class: measurement
+        device_class: "energy"
+        state: "{{ states('sensor.myenergi_home_green_energy_today') | float(default=0) + states('sensor.myenergi_zappi_22670748_energy_used_today') | float(default=0) }}"
+
+      # Solar forecast for next day or current day (16:00 is cutover for next day)
+      - name: energy_production_upcoming
+        unique_id: energy_production_upcoming
+        unit_of_measurement: "kWh"
+        device_class: "energy"
+        state: >
+          {% if today_at('00:01') <= now() < today_at('16:00') %}
+            {{ (states('sensor.energy_production_today')) }}
+          {% else %}
+            {{ (states('sensor.energy_production_tomorrow')) }}
+          {% endif %}
+
+  - binary_sensor:
+      # Logic divided into base conditions (bc) that apply regardless, and battery/solar specific
+      - name: "Request 3kW Immersion"
+        state: >
+          {% set alreadyOn = is_state('switch.sonoff_1001db22ba', 'on')|int(default=0)  %}
+          {% set heatingPower = states('sensor.sonoff_1001db22ba_power')|float(default=0) %}
+          {% set batteryCharging = states('sensor.solax_local_battery_power_adjusted')|int %}
+          {% set pv = states('sensor.solax_local_pv_output')|int %}
+          {% set feedIn = states('sensor.solax_local_feedin_power')|int %}
+          {% set load = states('sensor.solax_local_load_power')|int %}
+          {% set batteryLevel = states('sensor.solax_local_battery_soc')|int %}
+          {% set sparePower = feedIn + batteryCharging %}
+          {% set bc = (feedIn > -200) and (
+                   ((alreadyOn==false or heatingPower < 1000) and load < 2500)
+                or (alreadyOn==true and heatingPower > 1000 and load < 5500)) %}
+          {{ bc and ((pv > 3400 and alreadyOn==false and sparePower > 3200)
+                  or (pv > 3400 and alreadyOn==true  and sparePower > 100)
+                  or (pv > 2800 and alreadyOn==false and batteryLevel >  55)
+                  or (pv > 2800 and alreadyOn==true  and batteryLevel >= 50)
+                  or (pv > 2000 and alreadyOn==false and batteryLevel >  65)
+                  or (pv > 2000 and alreadyOn==true  and batteryLevel >= 60)
+                  or (pv > 1400 and alreadyOn==false and batteryLevel >  75)
+                  or (pv > 1400 and alreadyOn==true  and batteryLevel >= 70)
+                  or (pv >  800 and alreadyOn==false and batteryLevel >  85)
+                  or (pv >  800 and alreadyOn==true  and batteryLevel >= 80)
+                  or (pv >  200 and alreadyOn==false and batteryLevel >  93)
+                  or (pv >  200 and alreadyOn==true  and batteryLevel >= 90)) }}
+
+#  - binary_sensor:
+#      - name: "Request Tesla Charger"
+#        state: >
+#          {% set prioritiseEv = states('input_boolean.prioritise_ev_charging')|bool %}
+#          {% set immPower = states('sensor.sonoff_1001db22ba_power')|float(default=0) %}
+#          {% set alreadyOn = is_state('switch.outdoor_lights', 'on') %}
+#          {% set batteryCharging = states('sensor.solax_local_battery_power_adjusted')|int %}
+#          {% set pv = states('sensor.solax_local_pv_output')|int %}
+#          {% set feedIn = states('sensor.solax_local_feedin_power')|int %}
+#          {% set load = states('sensor.solax_local_load_power')|int %}
+#          {% set batteryLevel = states('sensor.solax_local_battery_soc')|int %}
+#          {% set sparePower = feedIn + batteryCharging %}
+#          {# (feedIn > -100) and #}
+#          {% set bc = (feedIn > -250 and sparePower > -1000) and ((alreadyOn==false and load < 3500) or (alreadyOn==true and load < 5500) or (prioritiseEv==true and immPower > 2000 and load < 5500)) %}
+#          {{ bc and ((pv > 3000 and alreadyOn==false and sparePower > 3000 )
+#                  or (pv > 3000 and alreadyOn==true  and sparePower >  600 )
+#                  or (pv > 2500 and alreadyOn==false and prioritiseEv==true and batteryLevel >  35)
+#                  or (pv > 2500 and alreadyOn==true  and prioritiseEv==true and batteryLevel >= 30)
+#                  or (pv > 2200 and alreadyOn==false and sparePower > 0     and batteryLevel >  80 )
+#                  or (pv > 2200 and alreadyOn==true  and sparePower > -500  and batteryLevel >= 75 )
+#                  or (pv > 1600 and alreadyOn==false and sparePower > 0     and batteryLevel >  85 )
+#                  or (pv > 1600 and alreadyOn==true  and sparePower > -250  and batteryLevel >= 80 )
+#                  or (pv > 1000 and alreadyOn==false and sparePower > 0     and batteryLevel >  92 )
+#                  or (pv > 1000 and alreadyOn==true  and sparePower > 0     and batteryLevel >= 90 )) }}
+
+sensor: !include sensor.yaml
+
+sensor powercalc_label: !include powercalc.yaml
+
+utility_meter:
+
+  # TODO: name needs to charge once powercalc is tidied up
+  daily_solar:
+    source: sensor.solar_panels_v2_energy
+    name: Solar Gen
+    cycle: daily
+
+  monthly_solar:
+    source: sensor.solar_panels_v2_energy
+    name: Monthly Solar Gen
+    cycle: monthly
+
+  # Actual yield (net of solar & battery in/out)
+  daily_inverter:
+    source: sensor.solax_local_inverter_aggregated_energy
+    name: Daily Yield
+    cycle: daily
+    net_consumption: true
+
+  monthly_inverter:
+    source: sensor.solax_local_inverter_aggregated_energy
+    name: Monthly Yield
+    cycle: monthly
+    net_consumption: true
+
+  # To prove Solax Inverter does not meter correctly
+  #daily_inverter_positive:
+  #  source: sensor.solax_local_inverter_aggregated_energy
+  #  name: Daily Yield Positive
+  #  cycle: daily
+  #  net_consumption: false
+
+  daily_load:
+    source: sensor.solax_local_load_aggregated_energy
+    name: Daily Load
+    cycle: daily
+
+  monthly_load:
+    source: sensor.solax_local_load_aggregated_energy
+    name: Monthly Load
+    cycle: monthly
+
+  daily_self_use:
+    source: sensor.solax_local_self_use_aggregated_energy
+    name: Daily Self Use
+    cycle: daily
+    net_consumption: true
+
+  monthly_self_use:
+    source: sensor.solax_local_self_use_aggregated_energy
+    name: Monthly Self Use
+    cycle: monthly
+    net_consumption: true
+
+  daily_grid_stored:
+    source: sensor.solax_local_inverter_in_aggregated_energy
+    name: Daily Grid Stored
+    cycle: daily
+
+  monthly_grid_stored:
+    source: sensor.solax_local_inverter_in_aggregated_energy
+    name: Monthly Grid Stored
+    cycle: monthly
+
+  daily_grid_used:
+    source: sensor.solax_local_grid_used_aggregated_energy
+    name: Daily Grid Used
+    cycle: daily
+
+  daily_grid_fed:
+    source: sensor.solax_local_grid_export_aggregated_energy
+    name: Daily Grid Fed
+    cycle: daily
+
+  daily_grid:
+    source: sensor.solax_local_grid_used_aggregated_energy
+    name: From Grid
+    cycle: daily
+    tariffs:
+      - peak
+      - offpeak
+
+  monthly_grid:
+    source: sensor.solax_local_grid_used_aggregated_energy
+    name: From Grid
+    cycle: monthly
+    tariffs:
+      - peak
+      - offpeak
+
+  #  daily_electric_heater:
+  #    source: sensor.electric_heater_aggregated_energy
+  #    name: Daily Electric Heater
+  #    cycle: daily
+
+  # Need to use powercalc for more granular monitoring as the total gets aggregated too slowly by Sonoff
+  daily_hot_water:
+    #source: sensor.sonoff_1001db22ba_energy
+    source: sensor.immersion_heater_aggregated_energy
+    name: Daily Hot Water
+    cycle: daily
+    tariffs:
+      - solar
+      - peak
+      - offpeak
+
+  monthly_hot_water:
+    source: sensor.sonoff_1001db22ba_energy
+    name: Hot Water
+    cycle: monthly
+    tariffs:
+      - solar
+      - peak
+      - offpeak
+
+  daily_zappi_charging:
+    source: sensor.zappi_today
+    name: Daily Zappi Charging
+    cycle: daily
+    tariffs:
+      - solar
+      - peak
+      - offpeak
+
+  monthly_zappi_charging:
+    source: sensor.zappi_today
+    name: Monthly Zappi Charging
+    cycle: monthly
+    tariffs:
+      - solar
+      - peak
+      - offpeak
+
+  daily_tesla_charging:
+    source: sensor.outdoor_lights_total_consumption
+    name: Daily Tesla Charging
+    cycle: daily
+    tariffs:
+      - solar
+      - peak
+      - offpeak
+
+  monthly_tesla_charging:
+    source: sensor.outdoor_lights_total_consumption
+    name: Monthly Tesla Charging
+    cycle: monthly
+    tariffs:
+      - solar
+      - peak
+      - offpeak
+
+### Commands for controlling the Solax Local inverter
+
+rest_command:
+
+  solax_local_set_charge_battery_from_grid:
+    url: !secret solax_local_ip
+    method: post
+    payload: !secret solax_local_set_battery_grid_charge_level_payload
+
+  solax_local_set_battery_min_soc:
+    url: !secret solax_local_ip
+    method: post
+    payload: !secret solax_local_set_battery_min_soc_payload
+
+  solax_local_set_period2_enable:
+    url: !secret solax_local_ip
+    method: post
+    payload: !secret solax_local_set_period2_enable_payload
+
+  solax_local_set_forced_charge_start:
+    url: !secret solax_local_ip
+    method: post
+    payload: !secret solax_local_set_battery_forced_charge_start
