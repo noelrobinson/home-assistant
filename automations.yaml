@@ -485,7 +485,7 @@
           - service: input_number.set_value
             data_template:
               entity_id: input_number.new_battery_target
-              # Assumptions: hourly morning usage of 0.25kWh/h, battery capacity 5.8kWh, end of night tariff 05:30am, overcharging by 4-5% hence -4 of the target
+              # Assumptions: hourly morning usage of 0.27kWh/h, battery capacity 5.8kWh, end of night tariff 05:30am, overcharging by 4-5% hence -4 of the target
               # Assumptions: low solar range upped to cater for immersion top up (2kWh)
               # Assumptions: 0kWh for heating per hour (heating from 0530 to 0730)
               # Note: min target should be about 22% winter and 14% in summer
@@ -494,7 +494,7 @@
                 {% set min_battery_target = states('input_number.min_battery_target')|int %}
                 {% set max_battery_target = states('input_number.max_battery_target')|int %}
                 {% set solar = states('sensor.filtered_upcoming_solar_forecast') %}
-                {% set morningHourlyLoad = 0.25 %}
+                {% set morningHourlyLoad = 0.27 %}
                 {# TODO: temperature-dependent heating setting 5C (100%); 20C (0%) #}
                 {% set morningHourlyHeating = 0 %}
                 {# Only consider time to rising if during the peak hours #}
