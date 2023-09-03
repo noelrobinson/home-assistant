@@ -40,68 +40,64 @@
 #      type: set_value
 #      value: 100
 
-#- id: '1672233470659'
-#  alias: Sinks - Tesla Charger - Solar start (excess solar)
-#  description: ''
-#  trigger:
-#    - platform: state
-#      entity_id: binary_sensor.request_tesla_charger
-#      for:
-#        hours: 0
-#        minutes: 2
-#        seconds: 30
-#      to: "on"
-#  condition:
-#    - condition: time
-#      after: "06:00:00"
-#      before: "22:00:00"
-#  action:
-#    - type: turn_on
-#      device_id: ea5104db6def72c74cac364dd24eb9fa
-#      entity_id: switch.outdoor_lights
-#      domain: switch
-#    - type: turn_on
-#      device_id: 7615a9a5ac17be699f02d3259908515c
-#      entity_id: switch.charger
-#      domain: switch
-#  mode: single
+- id: '1672233470659'
+  alias: Sinks - Tesla Charger - Solar start (excess solar)
+  description: ''
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.request_tesla_charger
+      for:
+        hours: 0
+        minutes: 2
+        seconds: 30
+      to: "on"
+  condition:
+    - condition: time
+      after: "06:00:00"
+      before: "22:00:00"
+  action:
+    - type: turn_on
+      device_id: fd52819a40b9e62efed08288a34e51d6
+      entity_id: switch.charger
+      domain: switch
+  mode: single
 
-#- id: '1672237770659'
-#  alias: Sinks - Tesla Charger - Solar adjust
-#  description: "Adjusts the amps used by the charger if house load is too high"
-#  trigger:
-#    - platform: time_pattern
-#      seconds: "/15"
-#  condition:
-#    - type: is_charging
-#      condition: device
-#      device_id: 7615a9a5ac17be699f02d3259908515c
-#      entity_id: binary_sensor.charging
-#      domain: binary_sensor
+- id: '1672237770659'
+  alias: Sinks - Tesla Charger - Solar adjust
+  description: "Adjusts the amps used by the charger if house load is too high"
+  trigger:
+    - platform: time_pattern
+      seconds: "/15"
+  condition:
+    - type: is_charging
+      condition: device
+      device_id: fd52819a40b9e62efed08288a34e51d6
+      entity_id: binary_sensor.charging
+      domain: binary_sensor
 #    - type: is_power
 #      condition: device
 #      device_id: ea5104db6def72c74cac364dd24eb9fa
-##      entity_id: sensor.outdoor_lights_current_consumption
+#      entity_id: sensor.outdoor_lights_current_consumption
 #      domain: sensor
 #      above: 100
-#  action:
-#    - service: number.set_value
-#      target:
-#        entity_id: number.charging_amps
-#      data:
-#        value: >
-#          {% set load = states('sensor.solax_local_load_power')|int %}
-#          {% set immAlreadyOn = is_state('switch.sonoff_1001db22ba', 'on')|int(default=0) %}
-#          {% set heatingPower = states('sensor.sonoff_1001db22ba_power')|float(default=0) %}
-#          {% set immAutomationOn = is_state('automation.sinks_put_3kw_immersion_heater_excess_solar', 'on') %}
-#          {% set adjust = ((load - 5500) / 240)|float|round(0, 'ceil', 0) %}
-#          {% set amps = states('number.charging_amps')|int %}
-#          {# runs at 2kW (9A) to allow immersion to run at the same time (3kW), with enough room for house load and staying under 5.5kW #}
-#          {# if immersion already full, increase to 10A #}
-#          {% set maxAmps = 10 if ((immAlreadyOn==true and heatingPower < 1000) or (immAlreadyOn==false and load > 3100) or (immAutomationOn==false)) else 9 %}
-#          {% set target = amps - adjust if (amps - adjust <= maxAmps) else maxAmps %}
-#          {{ target if (target >= 5) else 5 }}
-#  mode: single
+  action:
+    - service: number.set_value
+      target:
+        entity_id: number.charging_amps
+      data:
+        value: >
+          {% set load = states('sensor.solax_local_load_power')|int %}
+          {% set immAlreadyOn = is_state('switch.sonoff_1001db22ba', 'on')|int(default=0) %}
+          {% set heatingPower = states('sensor.sonoff_1001db22ba_power')|float(default=0) %}
+          {% set immAutomationOn = is_state('automation.sinks_put_3kw_immersion_heater_excess_solar', 'on') %}
+          {% set adjust = ((load - 5500) / 240)|float|round(0, 'ceil', 0) %}
+          {% set amps = states('number.charging_amps')|int %}
+          {# runs at 2kW (9A) to allow immersion to run at the same time (3kW), with enough room for house load and staying under 5.5kW #}
+          {# if immersion already full, increase to 10A #}
+          {% set maxAmps = 10 if ((immAlreadyOn==true and heatingPower < 1000) or (immAlreadyOn==false and load > 3100) or (immAutomationOn==false)) else 9 %}
+          {% set target = amps - adjust if (amps - adjust <= maxAmps) else maxAmps %}
+          {{ target if (target >= 5) else 5 }}
+  mode: single
 
 #- id: '1672233470677'
 #  alias: Sinks - Tesla Charger - Night start
@@ -134,31 +130,31 @@
 #      domain: switch
 #  mode: single
 
-#- id: '1634984084830'
-#  alias: Sinks - Tesla Charger - Solar stop (low solar)
-#  description: ''
-#  trigger:
-#    - platform: state
-#      entity_id: binary_sensor.request_tesla_charger
-#      for:
-#        hours: 0
-#        minutes: 10
-#        seconds: 0
-#      to: "off"
-#  condition:
-#    - condition: time
-#      after: "06:00:00"
-#      before: "22:00:00"
-#  action:
+- id: '1634984084830'
+  alias: Sinks - Tesla Charger - Solar stop (low solar)
+  description: ''
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.request_tesla_charger
+      for:
+        hours: 0
+        minutes: 10
+        seconds: 0
+      to: "off"
+  condition:
+    - condition: time
+      after: "06:00:00"
+      before: "22:00:00"
+  action:
 #    - type: turn_off
 #      device_id: ea5104db6def72c74cac364dd24eb9fa
 #      entity_id: switch.outdoor_lights
 #      domain: switch
-#    - type: turn_off
-#      device_id: 7615a9a5ac17be699f02d3259908515c
-#      entity_id: switch.charger
-#      domain: switch
-#  mode: single
+    - type: turn_off
+      device_id: fd52819a40b9e62efed08288a34e51d6
+      entity_id: switch.charger
+      domain: switch
+  mode: single
 
 #- id: "1022226654411"
 #  alias: Air Conditioning - Follow Tado settings
@@ -362,75 +358,74 @@
           {{ target }}
   mode: single
 
-- id: '1395837280099'
-  alias: Battery - Set solar battery min SOC level when charging EV
-  description: Set target battery level to high min level to prevent discharge into the EV
-  trigger:
-    - platform: time_pattern
-      minutes: "/2"
-  condition:
-    - condition: state
-      entity_id: "binary_sensor.tesla_wall_connector_contactor_closed"
-      state: "on"
-  action:
-    - repeat:
-        sequence:
-          - service: rest_command.solax_local_set_battery_min_soc
-            data:
-              level: >
-                {{ 92 }}
-          - delay:
-              hours: 0
-              minutes: 0
-              seconds: 10
-              milliseconds: 0
-          - service: homeassistant.update_entity
-            entity_id: sensor.solax_rest_local_settings
+#- id: '1395837280099'
+#  alias: Battery - Set solar battery min SOC level when charging EV
+#  description: Set target battery level to high min level to prevent discharge into the EV
+#  trigger:
+#    - platform: time_pattern
+#      minutes: "/2"
+#  condition:
+#    - condition: state
+#      entity_id: "binary_sensor.tesla_wall_connector_contactor_closed"
+#      state: "on"
+#  action:
+#    - repeat:
+#        sequence:
+#          - service: rest_command.solax_local_set_battery_min_soc
+#            data:
+#              level: >
+#                {{ 92 }}
+#          - delay:
+#              hours: 0
+#              minutes: 0
+#              seconds: 10
+#              milliseconds: 0
+#          - service: homeassistant.update_entity
+#            entity_id: sensor.solax_rest_local_settings
+#
+#        until:
+#          - condition: template
+#            # Try up to 3 times if the updated setting doen't reflect the target
+#            value_template: >-
+#              {{ states('sensor.solax_local_battery_min_soc')|int == states('input_number.new_battery_target')|int or
+#                  repeat.index == 3 }}
+#  mode: single
 
-        until:
-          - condition: template
-            # Try up to 3 times if the updated setting doen't reflect the target
-            value_template: >-
-              {{ states('sensor.solax_local_battery_min_soc')|int == states('input_number.new_battery_target')|int or
-                  repeat.index == 3 }}
-  mode: single
-
-- id: '1395837280100'
-  alias: Battery - Set solar battery min SOC level when not charging EV
-  description: Set target battery level to low when not charging EV
-  trigger:
-    - platform: time_pattern
-      minutes: "/2"
-  condition:
-    - condition: state
-      entity_id: "binary_sensor.tesla_wall_connector_contactor_closed"
-      state: "off"
-#    - condition: numeric_state
-#      entity_id: "sensor.solax_local_battery_min_soc"
-#      above: 10
-  action:
-    - repeat:
-        sequence:
-          - service: input_number.set_value
-          - service: rest_command.solax_local_set_battery_min_soc
-            data:
-              level: >
-                {{ 11 }}
-          - delay:
-              hours: 0
-              minutes: 0
-              seconds: 10
-              milliseconds: 0
-          - service: homeassistant.update_entity
-            entity_id: sensor.solax_rest_local_settings
-
-        until:
-          - condition: template
-            # Try up to 3 times if the updated setting doen't reflect the target
-            value_template: >-
-              {{ states('sensor.solax_local_battery_min_soc')|int == states('input_number.new_battery_target')|int or
-                  repeat.index == 3 }}
-  mode: single
+#- id: '1395837280100'
+#  alias: Battery - Set solar battery min SOC level when not charging EV
+#  description: Set target battery level to low when not charging EV
+#  trigger:
+#    - platform: time_pattern
+#      minutes: "/2"
+#  condition:
+#    - condition: state
+#      entity_id: "binary_sensor.tesla_wall_connector_contactor_closed"
+#      state: "off"
+##    - condition: numeric_state
+##      entity_id: "sensor.solax_local_battery_min_soc"
+##      above: 10
+#  action:
+#    - repeat:
+#        sequence:
+#          - service: rest_command.solax_local_set_battery_min_soc
+#            data:
+#              level: >
+#                {{ 11 }}
+#          - delay:
+#              hours: 0
+#              minutes: 0
+#              seconds: 10
+#              milliseconds: 0
+#          - service: homeassistant.update_entity
+#            entity_id: sensor.solax_rest_local_settings
+#
+#        until:
+#          - condition: template
+#            # Try up to 3 times if the updated setting doen't reflect the target
+#            value_template: >-
+#              {{ states('sensor.solax_local_battery_min_soc')|int == states('input_number.new_battery_target')|int or
+#                  repeat.index == 3 }}
+#  mode: single
 
 - id: '1395837280000'
   alias: Battery - Set solar battery target level
