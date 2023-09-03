@@ -362,104 +362,75 @@
           {{ target }}
   mode: single
 
-#- id: 1395837280099
-#  alias: Set Solar Battery Level
-#  description: Set level based on anticipated production
-#  trigger:
-#  - platform: time
-#    at: "23:00:00"
-#  condition: []
-#  action:
-#  - service: rest_command.solax_local_charge_battery_from_grid
-#    data:
-#      level: >
-#        {% set solar = states('sensor.energy_production_tomorrow') %}
-#        {% set target = 100 %}
-#        {% if is_number(solar) %}
-#          {% set target = 80 if (solar|int > 3 and solar|int <= 5) else target %}
-#          {% set target = 60 if (solar|int > 5 and solar|int <= 7) else target %}
-#          {% set target = 30 if (solar|int > 7 and solar|int <= 10) else target %}
-#          {% set target = 10 if (solar|int > 10) else target %}
-#        {% endif %}
-#        {{ target }}
-#  mode: single
+- id: '1395837280099'
+  alias: Battery - Set solar battery min SOC level when charging EV
+  description: Set target battery level to high min level to prevent discharge into the EV
+  trigger:
+    - platform: time_pattern
+      minutes: "/2"
+  condition:
+    - condition: state
+      entity_id: "binary_sensor.tesla_wall_connector_contactor_closed"
+      state: "on"
+  action:
+    - repeat:
+        sequence:
+          - service: rest_command.solax_local_set_battery_min_soc
+            data:
+              level: >
+                {{ 92 }}
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 10
+              milliseconds: 0
+          - service: homeassistant.update_entity
+            entity_id: sensor.solax_rest_local_settings
 
-#- id: '1395837280099'
-#  alias: Battery - Set solar battery min SOC level when charging EV
-#  description: Set target battery level to high min level to prevent discharge into the EV
-#  trigger:
-#    - platform: time_pattern
-#      minutes: "/2"
-#  condition:
-#    - condition: state
-#      entity_id: "binary_sensor.tesla_wall_connector_contactor_closed"
-#      state: "on"
-#  action:
-#    - repeat:
-#        sequence:
-#          - service: input_number.set_value
-#            data_template:
-#              entity_id: input_number.new_battery_target
-#              value: 92
-#          - service: rest_command.solax_local_set_battery_min_soc
-#            data:
-#              level: >
-#                {{ states('input_number.new_battery_target') }}
-#          - delay:
-#              hours: 0
-#              minutes: 0
-#              seconds: 10
-#              milliseconds: 0
-#          - service: homeassistant.update_entity
-#            entity_id: sensor.solax_rest_local_settings
-#
-#        until:
-#          - condition: template
-#            # Try up to 3 times if the updated setting doen't reflect the target
-#            value_template: >-
-#              {{ states('sensor.solax_local_battery_min_soc')|int == states('input_number.new_battery_target')|int or
-#                  repeat.index == 3 }}
-#  mode: single
+        until:
+          - condition: template
+            # Try up to 3 times if the updated setting doen't reflect the target
+            value_template: >-
+              {{ states('sensor.solax_local_battery_min_soc')|int == states('input_number.new_battery_target')|int or
+                  repeat.index == 3 }}
+  mode: single
 
-#- id: '1395837280100'
-#  alias: Battery - Set solar battery min SOC level when not charging EV
-#  description: Set target battery level to low when not charging EV
-#  trigger:
-#    - platform: time_pattern
-#      minutes: "/2"
-#  condition:
-#    - condition: state
-#      entity_id: "binary_sensor.tesla_wall_connector_contactor_closed"
-#      state: "off"
-##    - condition: numeric_state
-##      entity_id: "sensor.solax_local_battery_min_soc"
-##      above: 10
-#  action:
-#    - repeat:
-#        sequence:
-#          - service: input_number.set_value
-#            data_template:
-#              entity_id: input_number.new_battery_target
-#              value: 11
-#          - service: rest_command.solax_local_set_battery_min_soc
-#            data:
-#              level: >
-#                {{ states('input_number.new_battery_target') }}
-#          - delay:
-#              hours: 0
-#              minutes: 0
-#              seconds: 10
-#              milliseconds: 0
-#          - service: homeassistant.update_entity
-#            entity_id: sensor.solax_rest_local_settings
-#
-#        until:
-#          - condition: template
-#            # Try up to 3 times if the updated setting doen't reflect the target
-#            value_template: >-
-#              {{ states('sensor.solax_local_battery_min_soc')|int == states('input_number.new_battery_target')|int or
-#                  repeat.index == 3 }}
-#  mode: single
+- id: '1395837280100'
+  alias: Battery - Set solar battery min SOC level when not charging EV
+  description: Set target battery level to low when not charging EV
+  trigger:
+    - platform: time_pattern
+      minutes: "/2"
+  condition:
+    - condition: state
+      entity_id: "binary_sensor.tesla_wall_connector_contactor_closed"
+      state: "off"
+#    - condition: numeric_state
+#      entity_id: "sensor.solax_local_battery_min_soc"
+#      above: 10
+  action:
+    - repeat:
+        sequence:
+          - service: input_number.set_value
+          - service: rest_command.solax_local_set_battery_min_soc
+            data:
+              level: >
+                {{ 11 }}
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 10
+              milliseconds: 0
+          - service: homeassistant.update_entity
+            entity_id: sensor.solax_rest_local_settings
+
+        until:
+          - condition: template
+            # Try up to 3 times if the updated setting doen't reflect the target
+            value_template: >-
+              {{ states('sensor.solax_local_battery_min_soc')|int == states('input_number.new_battery_target')|int or
+                  repeat.index == 3 }}
+  mode: single
 
 - id: '1395837280000'
   alias: Battery - Set solar battery target level
