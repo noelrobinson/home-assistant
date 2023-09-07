@@ -650,7 +650,7 @@
               state_attr('binary_sensor.octopus_intelligent_slot',
               'plannedDispatches') %} {% set cheapNow =
               states("binary_sensor.octopus_intelligent_slot") == 'on' %} {% set
-              pence = (states('sensor.octopus_intelligent') | float(0)) * 100 %}
+              pence = states('input_number.electricity_tariff_cost') %}
               {% if cheapNow %} Electricity is currently cheap 🔥 {{ pence }}p/kWh
               {% else %} Electricity is currently expensive 🔥🔥🔥 {{ pence
               }}p/kWh {% endif %}
@@ -677,7 +677,7 @@
               state_attr('binary_sensor.octopus_intelligent_slot',
               'plannedDispatches') %} {% set cheapNow =
               states("binary_sensor.octopus_intelligent_slot") == 'on' %} {% set
-              pence = (states('sensor.octopus_intelligent') | float(0)) * 100 %}
+              pence = states('input_number.electricity_tariff_cost') %}
               {% if cheapNow %} Electricity is currently cheap 🔥 {{ pence }}p/kWh
               {% else %} Electricity is currently expensive 🔥🔥🔥 {{ pence
               }}p/kWh {% endif %}
