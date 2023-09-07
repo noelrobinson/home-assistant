@@ -535,12 +535,27 @@
         entity_id: select.monthly_tesla_charging
       data:
         option: '{{ tariff }}'
+
 - id: '1302984839203'
   alias: Tariffs - Switch electricity tariff
   description: Set electricity tariff for utility sensor
   variables:
     tariff: offpeak
   trigger:
+    - type: turned_on
+      platform: device
+      device_id: fe4e6403b07c3862ffee15a68572ba9d
+      entity_id: binary_sensor.octopus_intelligent_slot
+      domain: binary_sensor
+      variables:
+        tariff: offpeak
+    - type: turned_off
+      platform: device
+      device_id: fe4e6403b07c3862ffee15a68572ba9d
+      entity_id: binary_sensor.octopus_intelligent_slot
+      domain: binary_sensor
+      variables:
+        tariff: peak
     - platform: time
       at: '23:30:00'
       variables:
@@ -565,9 +580,7 @@
       target:
         entity_id: input_number.electricity_tariff_cost
       data:
-        value: '{% set cost = dict(peak=0.3060, offpeak=0.075) %} {{ cost[tariff] }}
-
-        '
+        value: '{% set cost = dict(peak=0.3060, offpeak=0.075) %} {{ cost[tariff] }}'
   mode: single
 - id: '1019847854392'
   alias: Inverter - Refresh local energy readings
@@ -595,4 +608,91 @@
       device_id: f026eddf710c85a131f11c071f912d81
       entity_id: 6bcc6e79f9145622d02e31a5704f1199
       domain: switch
+  mode: single
+
+- id: '1693997255330'
+  alias: Alert Octopus Intelligent Change
+  description: >-
+    Notify everyone if the cheap window starts or stops, and send the timings of
+    upcoming charges.
+  trigger:
+    - platform: state
+      entity_id:
+        - binary_sensor.octopus_intelligent_slot
+      from: "off"
+      to: "on"
+      id: "on"
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 30
+    - platform: state
+      entity_id:
+        - binary_sensor.octopus_intelligent_slot
+      from: "on"
+      to: "off"
+      id: "off"
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
+  condition: [ ]
+  action:
+    - if:
+        - condition: trigger
+          id: "on"
+      then:
+        - service: notify.mobile_app_sm_s908b
+          data:
+            title: Off-Peak Electricity Rate!
+            message: >-
+              {% set plannedDispatches =
+              state_attr('binary_sensor.octopus_intelligent_slot',
+              'plannedDispatches') %} {% set cheapNow =
+              states("binary_sensor.octopus_intelligent_slot") == 'on' %} {% set
+              pence = (states('sensor.octopus_intelligent') | float(0)) * 100 %}
+              {% if cheapNow %} Electricity is currently cheap 🔥 {{ pence }}p/kWh
+              {% else %} Electricity is currently expensive 🔥🔥🔥 {{ pence
+              }}p/kWh {% endif %}
+
+              {% if (plannedDispatches | length) == 0 %} No additional slots are
+              scheduled yet today. 😢
+
+              Use 23:30 - 05:30 only. {% else %} There are {{ plannedDispatches |
+              length }} upcoming slots for {{
+              as_timestamp(plannedDispatches[0].startDtUtc)|timestamp_custom
+              ('%Y/%m/%d')}}.
+
+              {% for item in plannedDispatches %} {{
+              as_timestamp(item.startDtUtc)|timestamp_custom ('%H:%M') }} - {{
+              as_timestamp(item.endDtUtc)|timestamp_custom ('%H:%M') }}
+
+              {%- endfor%} {% endif %}
+      else:
+        - service: notify.mobile_app_sm_s908b
+          data:
+            title: Peak Electricity Rate!
+            message: >-
+              {% set plannedDispatches =
+              state_attr('binary_sensor.octopus_intelligent_slot',
+              'plannedDispatches') %} {% set cheapNow =
+              states("binary_sensor.octopus_intelligent_slot") == 'on' %} {% set
+              pence = (states('sensor.octopus_intelligent') | float(0)) * 100 %}
+              {% if cheapNow %} Electricity is currently cheap 🔥 {{ pence }}p/kWh
+              {% else %} Electricity is currently expensive 🔥🔥🔥 {{ pence
+              }}p/kWh {% endif %}
+
+              {% if (plannedDispatches | length) == 0 %} No additional slots are
+              scheduled yet today. 😢
+
+              Use 23:30 - 05:30 only. {% else %} There are {{ plannedDispatches |
+              length }} upcoming slots for {{
+              as_timestamp(plannedDispatches[0].startDtUtc)|timestamp_custom
+              ('%Y/%m/%d')}}.
+
+              {% for item in plannedDispatches %} {{
+              as_timestamp(item.startDtUtc)|timestamp_custom ('%H:%M') }} - {{
+              as_timestamp(item.endDtUtc)|timestamp_custom ('%H:%M') }}
+
+              {%- endfor%} {% endif %}
   mode: single
