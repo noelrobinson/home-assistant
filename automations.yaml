@@ -456,6 +456,7 @@
             value_template: '{{ states(''sensor.solax_local_battery_setting_start_charge'')
           == ''05:25'' or repeat.index == 3 }}'
   mode: single
+
 - id: '1029376657476'
   alias: Battery - Enable forced charge
   description: Stops allowed discharge and allows for charging to target
@@ -463,9 +464,16 @@
     - platform: time_pattern
       minutes: /1
   condition:
-    - condition: time
-      after: 00:01:00
-      before: 05:20:00
+#    - condition: time
+#      after: 00:01:00
+#      before: 05:20:00
+    - condition: state
+      entity_id: binary_sensor.octopus_intelligent_slot
+      state: 'on'
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 30
     - condition: template
       value_template: '{{ states(''sensor.solax_local_battery_soc'')|int <= states(''sensor.solax_local_battery_charge_from_grid_to'')|int
       + 8 }}'
@@ -474,9 +482,12 @@
         sequence:
           - service: rest_command.solax_local_set_forced_charge_start
             data:
-              value: '{{ 0 + 5 * 256 }}
-
-            '
+#              hour = as_timestamp(sensor.octopus_intelligent_next_offpeak_start)|timestamp_custom ('%H')
+#              minute = as_timestamp(sensor.octopus_intelligent_next_offpeak_start)|timestamp_custom ('%M')
+#              value: '{{ 0 + 5 * 256 }}'
+              value: "{% set hour = as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%H')|int %}
+              {% set minute = as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%M')|int %}
+              '{{ (hour + minute) * 256 }}'"
           - delay:
               hours: 0
               minutes: 0
@@ -486,9 +497,10 @@
             entity_id: sensor.solax_rest_local_settings
         until:
           - condition: template
-            value_template: '{{ states(''sensor.solax_local_battery_setting_start_charge'')
-          == ''00:05'' or repeat.index == 3 }}'
+            value_template: "{{ states('sensor.solax_local_battery_setting_start_charge')
+          == as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%H:%M') or repeat.index == 3 }}"
   mode: single
+
 - id: '1302984839333'
   alias: Tariffs - Set 'solar' tariff for tracking usage from PV
   description: Set some meters to use 'solar' tariff
