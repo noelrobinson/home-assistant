@@ -471,7 +471,7 @@
       for:
         hours: 0
         minutes: 0
-        seconds: 10
+        seconds: 30
     - condition: template
       value_template: '{{ states(''sensor.solax_local_battery_soc'')|int <= states(''sensor.solax_local_battery_charge_from_grid_to'')|int
       + 8 }}'
