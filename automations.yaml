@@ -127,15 +127,21 @@
         >  7 and immersion|float <  8) else target %}\n  {% set target = 300 if (immersion|float
         >= 8) else target %}\n{% endif %} {{ target }}\n"
   mode: single
+
 - id: '1395837280000'
   alias: Battery - Set solar battery target level
-  description: Set target battery level (charge from grid) based on anticipated solar
-    production
+  description: Set target battery level (charge from grid) based on anticipated solar production
   trigger:
+    - type: turned_on
+      platform: device
+      device_id: fe4e6403b07c3862ffee15a68572ba9d
+      entity_id: binary_sensor.octopus_intelligent_slot
+      domain: binary_sensor
     - platform: time
-      at: '23:30:00'
+      at: "23:30:00"
+    # If the forecast charges for worse, a last change to top up the battery
     - platform: time
-      at: 04:00:00
+      at: "04:00:00"
     - platform: state
       entity_id:
         - input_number.min_battery_target
@@ -151,37 +157,41 @@
           - service: input_number.set_value
             data_template:
               entity_id: input_number.new_battery_target
-              value: "{% set min_battery_target = states('input_number.min_battery_target')|int
-            %} {% set max_battery_target = states('input_number.max_battery_target')|int
-            %} {% set solar = states('sensor.filtered_upcoming_solar_forecast') %}
-            {% set morningHourlyLoad = 0.27 %} {# TODO: temperature-dependent heating
-            setting 5C (100%); 20C (0%) #} {% set morningHourlyHeating = 0 %} {# Only
-            consider time to rising if during the peak hours #} {% set secondsToSunRising
-            = 0 if (today_at(as_timestamp(states.sun.sun.attributes.next_rising)|
-            timestamp_custom(\"%H:%M\")) < today_at('05:30')) else (today_at(as_timestamp(states.sun.sun.attributes.next_rising)|
-            timestamp_custom(\"%H:%M\")) - today_at('05:30')).seconds %} {% set morningDemandKWh
-            = (secondsToSunRising/60/60*morningHourlyLoad + morningHourlyHeating*2.5)|round
-            %} {% set morningDemand = (morningDemandKWh/5.8*100)|round %} {% set minTarget
-            = 10 + morningDemand - 4 %} {% if is_number(solar) %}\n  {% set target
-            = max_battery_target  if (solar|float <= 6) else target %}  \n  {% set
-            target = minTarget + 70 if (solar|float >  6 and solar|float <=  7) else
-            target %}\n  {% set target = minTarget + 55 if (solar|float >  7 and solar|float
-            <=  8) else target %}\n  {% set target = minTarget + 40 if (solar|float
-            >  8 and solar|float <=  9) else target %}\n  {% set target = minTarget
-            + 25 if (solar|float >  9 and solar|float <= 10) else target %}\n  {%
-            set target = minTarget + 15 if (solar|float > 10 and solar|float <= 11)
-            else target %}\n  {% set target = minTarget + 10 if (solar|float > 11
-            and solar|float <= 12) else target %}\n  {% set target = minTarget +  5
-            if (solar|float > 12 and solar|float <= 13) else target %}\n  {% set target
-            = minTarget      if (solar|float > 13) else target %}\n{% endif %}  {%
-            set target = target if (target > min_battery_target) else min_battery_target
-            %}  {{ target if (target <= max_battery_target) else max_battery_target
-            }}\n"
+              # Assumptions: hourly morning usage of 0.27kWh/h, battery capacity 5.8kWh, end of night tariff 05:30am, overcharging by 4-5% hence -4 of the target
+              # Assumptions: low solar range upped to cater for immersion top up (2kWh)
+              # Assumptions: 0kWh for heating per hour (heating from 0530 to 0730)
+              # Note: min target should be about 22% winter and 14% in summer
+              # Note: instead of using separate tomorrow/today's forecasts, use a single state (energy_production_upcoming) and then its average over a few hours (filtered)
+              value: >
+                {% set min_battery_target = states('input_number.min_battery_target')|int %}
+                {% set max_battery_target = states('input_number.max_battery_target')|int %}
+                {% set solar = states('sensor.filtered_upcoming_solar_forecast') %}
+                {% set morningHourlyLoad = 0.27 %}
+                {# TODO: temperature-dependent heating setting 5C (100%); 20C (0%) #}
+                {% set morningHourlyHeating = 0 %}
+                {# Only consider time to rising if during the peak hours #}
+                {% set secondsToSunRising = 0 if (today_at(as_timestamp(states.sun.sun.attributes.next_rising)| timestamp_custom("%H:%M")) < today_at('05:30')) else (today_at(as_timestamp(states.sun.sun.attributes.next_rising)| timestamp_custom("%H:%M")) - today_at('05:30')).seconds %}
+                {% set morningDemandKWh = (secondsToSunRising/60/60*morningHourlyLoad + morningHourlyHeating*2.5)|round %}
+                {% set morningDemand = (morningDemandKWh/5.8*100)|round %}
+                {% set minTarget = 10 + morningDemand - 4 %}
+                {% if is_number(solar) %}
+                  {% set target = max_battery_target  if (solar|float <= 6) else target %}  
+                  {% set target = minTarget + 70 if (solar|float >  6 and solar|float <=  7) else target %}
+                  {% set target = minTarget + 55 if (solar|float >  7 and solar|float <=  8) else target %}
+                  {% set target = minTarget + 40 if (solar|float >  8 and solar|float <=  9) else target %}
+                  {% set target = minTarget + 25 if (solar|float >  9 and solar|float <= 10) else target %}
+                  {% set target = minTarget + 15 if (solar|float > 10 and solar|float <= 11) else target %}
+                  {% set target = minTarget + 10 if (solar|float > 11 and solar|float <= 12) else target %}
+                  {% set target = minTarget +  5 if (solar|float > 12 and solar|float <= 13) else target %}
+                  {% set target = minTarget      if (solar|float > 13) else target %}
+                {% endif %} 
+                {% set target = target if (target > min_battery_target) else min_battery_target %} 
+                {{ target if (target <= max_battery_target) else max_battery_target }}
           - service: rest_command.solax_local_set_charge_battery_from_grid
             data:
-              level: '{{ states(''input_number.new_battery_target'') }}
-
-            '
+              # Max level to 92% to reduce battery wear. Minimum to 11% plus 4% overcharge
+              level: >
+                {{ states('input_number.new_battery_target') }}
           - delay:
               hours: 0
               minutes: 0
@@ -189,12 +199,15 @@
               milliseconds: 0
           - service: homeassistant.update_entity
             entity_id: sensor.solax_rest_local_settings
+
         until:
           - condition: template
-            value_template: "{{ states('sensor.solax_local_battery_charge_from_grid_to')|int
-          == states('input_number.new_battery_target')|int or\n    repeat.index ==
-          3 }}"
+            # Try up to 3 times if the updated setting doen't reflect the target
+            value_template: >-
+              {{ states('sensor.solax_local_battery_charge_from_grid_to')|int == states('input_number.new_battery_target')|int or
+                  repeat.index == 3 }}
   mode: single
+
 - id: '1105783920393'
   alias: Sinks - Hot Water - Start immersion heater (excess solar)
   description: ''
