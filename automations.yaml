@@ -441,9 +441,7 @@
         sequence:
           - service: rest_command.solax_local_set_forced_charge_start
             data:
-              value: '{{ 5 + 25 * 256 }}
-
-            '
+              value: '{{ 5 + 25 * 256 }}'
           - delay:
               hours: 0
               minutes: 0
@@ -482,12 +480,9 @@
         sequence:
           - service: rest_command.solax_local_set_forced_charge_start
             data:
-#              hour = as_timestamp(sensor.octopus_intelligent_next_offpeak_start)|timestamp_custom ('%H')
-#              minute = as_timestamp(sensor.octopus_intelligent_next_offpeak_start)|timestamp_custom ('%M')
-#              value: '{{ 0 + 5 * 256 }}'
               value: "{% set hour = as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%H')|int %}
               {% set minute = as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%M')|int %}
-              '{{ (hour + minute) * 256 }}'"
+              {{ hour + minute * 256 }}"
           - delay:
               hours: 0
               minutes: 0
