@@ -816,6 +816,11 @@ rest_command:
     method: post
     payload: !secret solax_local_set_battery_forced_charge_start
 
+  solax_local_set_forced_charge_stop:
+    url: !secret solax_local_ip
+    method: post
+    payload: !secret solax_local_set_battery_forced_charge_stop
+
   solax_local_set_forced_charge_stop2:
     url: !secret solax_local_ip
     method: post

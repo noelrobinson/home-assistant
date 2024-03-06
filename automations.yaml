@@ -693,6 +693,164 @@
 #      option: Eco+
   mode: single
 
+- id: "1029376657476"
+  alias: Battery - Enable forced charge outside night hours
+  description: Stops allowed discharge and allows for charging to target
+  trigger:
+    - platform: time_pattern
+      minutes: /1
+  condition:
+    #    - condition: time
+    #      after: 00:01:00
+    #      before: 05:20:00
+    - condition: state
+      entity_id: binary_sensor.octopus_intelligent_slot
+      state: 'on'
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 20
+    - condition: template
+      value_template: '{{ states(''sensor.solax_local_battery_soc'')|int <= states(''sensor.solax_local_battery_charge_from_grid_to'')|int
+      + 8 }}'
+  action:
+    - repeat:
+        sequence:
+          - service: rest_command.solax_local_set_forced_charge_start
+            data:
+              value: "{% set hour = as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%H')|int %}
+              {% set minute = as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%M')|int %}
+              {{ hour + minute * 256 }}"
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 15
+              milliseconds: 0
+          - service: homeassistant.update_entity
+            entity_id: sensor.solax_rest_local_settings
+        until:
+          - condition: template
+            value_template: "{{ states('sensor.solax_local_battery_setting_start_charge')
+          == as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%H:%M') or repeat.index == 3 }}"
+    - repeat:
+        sequence:
+          - service: rest_command.solax_local_set_forced_charge_stop
+            data:
+              value: "{% set hour = as_timestamp(states('sensor.octopus_intelligent_offpeak_end'))|timestamp_custom ('%H')|int %}
+              {% set minute = as_timestamp(states('sensor.octopus_intelligent_offpeak_end'))|timestamp_custom ('%M')|int %}
+              {{ hour + minute * 256 }}"
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 15
+              milliseconds: 0
+          - service: homeassistant.update_entity
+            entity_id: sensor.solax_rest_local_settings
+        until:
+          - condition: template
+            value_template: "{{ states('sensor.solax_local_battery_setting_stop_charge')
+          == as_timestamp(states('sensor.octopus_intelligent_offpeak_end'))|timestamp_custom ('%H:%M') or repeat.index == 3 }}"
+  mode: single
+
+- id: "1029376657479"
+  alias: Battery - Enable forced charge for night hours
+  description: Battery - Enable forced charge during night tariff
+  trigger:
+    - platform: time_pattern
+      minutes: /1
+  condition:
+    - condition: state
+      entity_id: binary_sensor.octopus_intelligent_slot
+      state: 'off'
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 20
+    - condition: template
+      value_template: "{{ states('sensor.solax_local_battery_setting_start_charge') != '23:30' }}"
+  action:
+    - repeat:
+        sequence:
+          - service: rest_command.solax_local_set_forced_charge_start
+            data:
+              value: "{% set hour = as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%H')|int %}
+              {% set minute = as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%M')|int %}
+              {{ hour + minute * 256 }}"
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 15
+              milliseconds: 0
+          - service: homeassistant.update_entity
+            entity_id: sensor.solax_rest_local_settings
+        until:
+          - condition: template
+            value_template: "{{ states('sensor.solax_local_battery_setting_start_charge')
+          == as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%H:%M') or repeat.index == 3 }}"
+    - repeat:
+        sequence:
+          - service: rest_command.solax_local_set_forced_charge_stop
+            data:
+              value: "{% set hour = as_timestamp(states('sensor.octopus_intelligent_offpeak_end'))|timestamp_custom ('%H')|int %}
+              {% set minute = as_timestamp(states('sensor.octopus_intelligent_offpeak_end'))|timestamp_custom ('%M')|int %}
+              {{ hour + minute * 256 }}"
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 15
+              milliseconds: 0
+          - service: homeassistant.update_entity
+            entity_id: sensor.solax_rest_local_settings
+        until:
+          - condition: template
+            value_template: "{{ states('sensor.solax_local_battery_setting_stop_charge')
+          == as_timestamp(states('sensor.octopus_intelligent_offpeak_end'))|timestamp_custom ('%H:%M') or repeat.index == 3 }}"
+  mode: single
+
+- id: "1029376657477"
+  alias: Battery - When charging EV
+  description: Prevents the Battery emptying into the EV when on charge
+  trigger:
+    - platform: time_pattern
+      minutes: /1
+  condition:
+    #    - condition: state
+    #      entity_id: binary_sensor.octopus_intelligent_slot
+    #      state: 'on'
+    #      for:
+    #        hours: 0
+    #        minutes: 0
+    #        seconds: 20
+    - condition: state
+      entity_id: "binary_sensor.tesla_wall_connector_contactor_closed"
+      state: "on"
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 20
+    - condition: template
+      value_template: >-
+        {{ states('sensor.solax_local_battery_min_soc')|int < 100 }}
+  action:
+    - repeat:
+        sequence:
+          - service: rest_command.solax_local_set_battery_min_soc
+            data:
+              level: 100
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 10
+              milliseconds: 0
+          - service: homeassistant.update_entity
+            entity_id: sensor.solax_rest_local_settings
+        until:
+          - condition: template
+            # Try up to 3 times if the updated setting doen't reflect the target
+            value_template: >-
+              {{ states('sensor.solax_local_battery_min_soc')|int == 100 or repeat.index == 3 }}
+  mode: single
+
 - id: "1029376657478"
   alias: Battery - When NOT charging EV
   description: Resets the Battery Min SOC back to 11
