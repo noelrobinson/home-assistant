@@ -63,3 +63,4 @@
   name: Immersion Heater Aggregated
   fixed:
     power: "{{states('sensor.sonoff_1001db22ba_power')}}"
+
