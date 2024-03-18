@@ -292,16 +292,16 @@
         entity_id: select.monthly_tesla_charging
       data:
         option: "{{ tariff }}"
-    - service: select.select_option
-      target:
-        entity_id: select.daily_zappi_charging
-      data:
-        option: "{{ tariff }}"
-    - service: select.select_option
-      target:
-        entity_id: select.monthly_zappi_charging
-      data:
-        option: "{{ tariff }}"
+#    - service: select.select_option
+#      target:
+#        entity_id: select.daily_zappi_charging
+#      data:
+#        option: "{{ tariff }}"
+#    - service: select.select_option
+#      target:
+#        entity_id: select.monthly_zappi_charging
+#      data:
+#        option: "{{ tariff }}"
 
 # Tariff selection for meters (default to offpeak for manual runs)
 - id: "1302984839203"

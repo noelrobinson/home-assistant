@@ -572,12 +572,12 @@ template:
         state: "{{ states('sensor.lounge_yearly_heat_energy_consumption') | float(default=0) + states('sensor.amelia_s_bedroom_yearly_heat_energy_consumption') | float(default=0) + states('sensor.master_bedroom_yearly_heat_energy_consumption') | float(default=0) + states('sensor.adam_s_bedroom_yearly_heat_energy_consumption') | float(default=0)}}"
 
       # Total today's zappi
-      - name: zappi_today
-        unique_id: zappi_today
-        unit_of_measurement: "kWh"
-        state_class: measurement
-        device_class: "energy"
-        state: "{{ states('sensor.myenergi_home_green_energy_today') | float(default=0) + states('sensor.myenergi_zappi_22670748_energy_used_today') | float(default=0) }}"
+#      - name: zappi_today
+#        unique_id: zappi_today
+#        unit_of_measurement: "kWh"
+#        state_class: measurement
+#        device_class: "energy"
+#        state: "{{ states('sensor.myenergi_home_green_energy_today') | float(default=0) + states('sensor.myenergi_zappi_22670748_energy_used_today') | float(default=0) }}"
 
       # Solar forecast for next day or current day (16:00 is cutover for next day)
       - name: energy_production_upcoming
@@ -754,28 +754,28 @@ utility_meter:
       - peak
       - offpeak
 
-  daily_zappi_charging:
-    source: sensor.zappi_today
-    name: Daily Zappi Charging
-    cycle: daily
-    net_consumption: true
-    tariffs:
-      - solar
-      - peak
-      - offpeak
+#  daily_zappi_charging:
+#    source: sensor.zappi_today
+#    name: Daily Zappi Charging
+#    cycle: daily
+#    net_consumption: true
+#    tariffs:
+#      - solar
+#      - peak
+#      - offpeak
 
-  monthly_zappi_charging:
-    source: sensor.zappi_today
-    name: Monthly Zappi Charging
-    cycle: monthly
-    net_consumption: true
-    tariffs:
-      - solar
-      - peak
-      - offpeak
+#  monthly_zappi_charging:
+#    source: sensor.zappi_today
+#    name: Monthly Zappi Charging
+#    cycle: monthly
+#    net_consumption: true
+#    tariffs:
+#      - solar
+#      - peak
+#      - offpeak
 
   daily_tesla_charging:
-    source: sensor.outdoor_lights_total_consumption
+    source: sensor.tesla_wall_connector_energy
     name: Daily Tesla Charging
     cycle: daily
     tariffs:
@@ -784,7 +784,7 @@ utility_meter:
       - offpeak
 
   monthly_tesla_charging:
-    source: sensor.outdoor_lights_total_consumption
+    source: sensor.tesla_wall_connector_energy
     name: Monthly Tesla Charging
     cycle: monthly
     tariffs:
