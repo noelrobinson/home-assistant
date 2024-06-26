@@ -349,7 +349,7 @@
         entity_id: input_number.electricity_tariff_cost
       data:
         value: >
-          {% set cost = dict(peak=0.3060, offpeak=0.075) %}
+          {% set cost = dict(peak=0.23713, offpeak=0.07) %}
           {{ cost[tariff] }}
   mode: single
 
