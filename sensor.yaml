@@ -128,3 +128,17 @@
         {% set heat_energy = water_mass * 4184 * delta_t %}
         {% set heat_time_hours = heat_energy / (heating_power * efficiency * 3600) %}
         {{ heat_time_hours|round(2) }}
+
+- platform: template
+  sensors:
+    hot_tub_weather_compensated_setpoint:
+      friendly_name: "Hot Tub Weather Compensated Setpoint"
+      unit_of_measurement: "C"
+      value_template: >-
+        {% set outside_temp = states('sensor.home_realfeel_temperature')|float %}
+        {% set temp_20c = 36 %}
+        {% set temp_0c = 38 %}
+        {% set max_temp = 40 %}
+        {% set min_temp = 25 %}
+        {% set weather_compensated_setpoint = ((((temp_20c - temp_0c) / 20) * outside_temp) + temp_0c) %}
+        {{ weather_compensated_setpoint }}
