@@ -112,3 +112,19 @@
 #    - sensor.domek_outdoor_temperature
 #  duration:
 #    hours: 24
+
+- platform: template
+  sensors:
+    hot_tub_heat_time:
+      friendly_name: "Hot Tub Heat Time"
+      unit_of_measurement: "hours"
+      value_template: >-
+        {% set initial_temp = state_attr('climate.spa_thermostat','current_temperature')|float %}
+        {% set final_temp = state_attr('climate.spa_thermostat','temperature')|float %}
+        {% set water_mass = 1550 %}
+        {% set heating_power = 3000 %}
+        {% set efficiency = 0.9 %}
+        {% set delta_t = final_temp - initial_temp %}
+        {% set heat_energy = water_mass * 4184 * delta_t %}
+        {% set heat_time_hours = heat_energy / (heating_power * efficiency * 3600) %}
+        {{ heat_time_hours|round(2) }}
