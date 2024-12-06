@@ -2,7 +2,7 @@
   alias: Sinks - Hot Water - Start immersion heater (excess solar)
   description: ''
   trigger:
-    - platform: state
+    - trigger: state
       entity_id: binary_sensor.request_3kw_immersion
       for:
         hours: 0
@@ -35,7 +35,7 @@
   alias: Sinks - Hot Water - Pause immersion heater (temperature reached)
   description: ''
   trigger:
-    - platform: numeric_state
+    - trigger: numeric_state
       entity_id: sensor.sonoff_1001db22ba_power
       for:
         hours: 0
@@ -54,12 +54,12 @@
       after: "07:30:00"
       before: "18:30:00"
   action:
-    - service: automation.turn_off
+    - action: automation.turn_off
       data:
         stop_actions: true
       target:
         entity_id: automation.sinks_put_3kw_immersion_heater_excess_solar
-    - service: switch.turn_off
+    - action: switch.turn_off
       data: {}
       target:
         entity_id: switch.sonoff_1001db22ba
@@ -68,7 +68,7 @@
         minutes: 60
         seconds: 0
         milliseconds: 0
-    - service: automation.turn_on
+    - action: automation.turn_on
       data: {}
       target:
         entity_id: automation.sinks_put_3kw_immersion_heater_excess_solar
@@ -78,7 +78,7 @@
   alias: Sinks - Hot Water - Run immersion heater (evening top-up in case of low solar)
   description: ''
   trigger:
-    - platform: time
+    - trigger: time
       at: "19:35:00"
   condition:
     - condition: template
@@ -134,15 +134,15 @@
   alias: Sinks - Hot Water - Start immersion heater (night start)
   description: ''
   trigger:
-    - platform: time
+    - trigger: time
       at: "00:35:00"
-    - platform: time
+    - trigger: time
       at: "01:35:00"
-    - platform: time
+    - trigger: time
       at: "02:35:00"
-    - platform: time
+    - trigger: time
       at: "03:35:00"
-    - platform: time
+    - trigger: time
       at: "04:35:00"
   condition:
     - condition: template
@@ -171,12 +171,12 @@
   alias: Sinks - Hot Water - Stop immersion heater (max temp idle time or night target reached)
   description: Turn off completely if thermostat starts turning off the heating (hot enough) or target achieved
   trigger:
-    - platform: numeric_state
+    - trigger: numeric_state
       entity_id: sensor.sonoff_1001db22ba_power
       for:
         seconds: "{{ states('input_number.max_temp_idle_seconds')|int }}"
       below: 1000
-    - platform: template
+    - trigger: template
       value_template: >-
         {{ states('sensor.daily_hot_water_offpeak')|float >= states('input_number.night_immersion_target')|float }}
   condition:
@@ -206,24 +206,24 @@
   alias: Sinks - Hot Water - Stop immersion heater (low solar or night end)
   description: ''
   trigger:
-    - platform: state
+    - trigger: state
       entity_id: binary_sensor.request_3kw_immersion
       for:
         hours: 0
         minutes: 0
         seconds: 45
       to: "off"
-    - platform: time
+    - trigger: time
       at: "01:25:00"
-    - platform: time
+    - trigger: time
       at: "02:25:00"
-    - platform: time
+    - trigger: time
       at: "03:25:00"
-    - platform: time
+    - trigger: time
       at: "04:25:00"
-    - platform: time
+    - trigger: time
       at: "05:25:00"
-    - platform: time
+    - trigger: time
       at: "19:15:00"
   condition:
     - condition: time
@@ -251,53 +251,53 @@
   alias: Tariffs - Set 'solar' tariff for tracking usage from PV
   description: "Set some meters to use 'solar' tariff"
   trigger:
-    - platform: sun
+    - trigger: sun
       event: sunrise
       offset: 0
       variables:
         tariff: >-
           {{ "solar" if today_at('05:30') <= now() else "offpeak" }}
-    - platform: sun
+    - trigger: sun
       event: sunset
       offset: 0
       variables:
         tariff: peak
-    - platform: time
+    - trigger: time
       at: "23:30:00"
       variables:
         tariff: offpeak
-    - platform: time
+    - trigger: time
       at: "05:30:00"
       variables:
         tariff: >-
           {{ "peak" if (is_state('sun.sun', "below_horizon")) else "solar" }}
   action:
-    - service: select.select_option
+    - action: select.select_option
       target:
         entity_id: select.monthly_hot_water
       data:
         option: "{{ tariff }}"
-    - service: select.select_option
+    - action: select.select_option
       target:
         entity_id: select.daily_hot_water
       data:
         option: "{{ tariff }}"
-    - service: select.select_option
+    - action: select.select_option
       target:
         entity_id: select.daily_tesla_charging
       data:
         option: "{{ tariff }}"
-    - service: select.select_option
+    - action: select.select_option
       target:
         entity_id: select.monthly_tesla_charging
       data:
         option: "{{ tariff }}"
-#    - service: select.select_option
+#    - action: select.select_option
 #      target:
 #        entity_id: select.daily_zappi_charging
 #      data:
 #        option: "{{ tariff }}"
-#    - service: select.select_option
+#    - action: select.select_option
 #      target:
 #        entity_id: select.monthly_zappi_charging
 #      data:
@@ -311,40 +311,40 @@
     tariff: offpeak
   trigger:
     - type: turned_on
-      platform: device
+      trigger: device
       device_id: fe4e6403b07c3862ffee15a68572ba9d
       entity_id: binary_sensor.octopus_intelligent_slot
       domain: binary_sensor
       variables:
         tariff: offpeak
     - type: turned_off
-      platform: device
+      trigger: device
       device_id: fe4e6403b07c3862ffee15a68572ba9d
       entity_id: binary_sensor.octopus_intelligent_slot
       domain: binary_sensor
       variables:
         tariff: peak
-    - platform: time
+    - trigger: time
       at: "23:30:00"
       variables:
         tariff: offpeak
-    - platform: time
+    - trigger: time
       at: "05:30:00"
       variables:
         tariff: peak
   condition: []
   action:
-    - service: select.select_option
+    - action: select.select_option
       target:
         entity_id: select.daily_grid
       data:
         option: "{{ tariff }}"
-    - service: select.select_option
+    - action: select.select_option
       target:
         entity_id: select.monthly_grid
       data:
         option: "{{ tariff }}"
-    - service: input_number.set_value
+    - action: input_number.set_value
       target:
         entity_id: input_number.electricity_tariff_cost
       data:
@@ -358,14 +358,14 @@
   alias: Inverter - Refresh local energy readings
   description: "Updates local inverter readings"
   trigger:
-    - platform: time_pattern
+    - trigger: time_pattern
       seconds: "/15"
   condition:
     - condition: time
       after: "06:00:00"
       before: "22:00:00"
   action:
-    - service: homeassistant.update_entity
+    - action: homeassistant.update_entity
       entity_id: sensor.solax_rest_local
   mode: single
 
@@ -374,16 +374,16 @@
   alias: Inverter - Refresh local energy settings
   description: "Updates local inverter settings"
   trigger:
-    - platform: time_pattern
+    - trigger: time_pattern
       minutes: "/15"
   condition:
     - condition: time
       after: "09:00:00"
       before: "22:00:00"
   action:
-    - service: homeassistant.update_entity
+    - action: homeassistant.update_entity
       entity_id: sensor.solax_rest_local_settings
-    - service: input_datetime.set_datetime
+    - action: input_datetime.set_datetime
       target:
         entity_id: input_datetime.solax_local_settings_read
       data:
@@ -394,16 +394,16 @@
   alias: Octopus - Saving Session joiner
   description: Automatically join Octopus Saving Session Events
   trigger:
-    - platform: event
+    - trigger: event
       event_type: octopus_energy_new_octoplus_saving_session
   condition: []
   action:
-    - service: octopus_energy.join_octoplus_saving_session_event
+    - action: octopus_energy.join_octoplus_saving_session_event
       data:
         event_code: '{{ trigger.event.data["event_code"] }}'
       target:
         entity_id: event.octopus_energy_a_7e9f23d1_octoplus_saving_session_events
-    - service: persistent_notification.create
+    - action: persistent_notification.create
       data:
         title: "Octopus Saving Sessions Updated"
         message: >
@@ -415,17 +415,17 @@
   description: 'Sets the today flag and copies over the start time - this in turn should trigger the 3001 automation for pre-charging'
   # Trigger every hour or when a new event is published (e.g. surprise session)
   trigger:
-    - platform: time_pattern
+    - trigger: time_pattern
       minutes: "/30"
-    - platform: state
+    - trigger: state
       entity_id:
         - binary_sensor.octopus_energy_a_7e9f23d1_octoplus_saving_sessions
-    - platform: state
+    - trigger: state
       entity_id:
         - binary_sensor.octopus_energy_a_7e9f23d1_octoplus_saving_sessions
       attribute: next_joined_event_start
   action:
-    - service: input_select.select_option
+    - action: input_select.select_option
       target:
         entity_id: input_select.saving_session_today
       data:
@@ -435,7 +435,7 @@
           {% set next_event = state_attr('binary_sensor.octopus_energy_a_7e9f23d1_octoplus_saving_sessions', 'next_joined_event_start') %}
           {% set upcoming_event = current_event if (current_event != None) else next_event %}
           {{ 'yes' if (upcoming_event != None and upcoming_event.strftime('%j') == now().strftime('%j')) else 'no' }}
-    - service: input_datetime.set_datetime
+    - action: input_datetime.set_datetime
       target:
         entity_id: input_datetime.saving_session_start
       data:
@@ -450,17 +450,17 @@
   alias: Battery - Saving Sessions - Enable automations
   description: "Enable pre-charging and forced discharge automations"
   trigger:
-    - platform: state
+    - trigger: state
       entity_id:
         - input_select.saving_session_today
       from: "no"
       to: "yes"
   action:
-    - service: automation.turn_on
+    - action: automation.turn_on
       data: {}
       target:
         entity_id: automation.battery_enable_forced_charge_before_saving_session
-    - service: automation.turn_on
+    - action: automation.turn_on
       data: {}
       target:
         entity_id: automation.battery_saving_sessions_enable_forced_discharge
@@ -470,9 +470,9 @@
   alias: Battery - Saving Sessions - Request full charge
   description: "Stops allowed discharge and allows for charging to target"
   trigger:
-    - platform: time_pattern
+    - trigger: time_pattern
       minutes: "/15"
-    - platform: state
+    - trigger: state
       entity_id:
         - input_datetime.saving_session_start
         - input_select.saving_session_today
@@ -489,7 +489,7 @@
   action:
     - repeat:
         sequence:
-          - service: rest_command.solax_local_set_period2_enable
+          - action: rest_command.solax_local_set_period2_enable
             data:
               # 1 = enabled, 0 = disabled
               enabled: >
@@ -499,7 +499,7 @@
               minutes: 0
               seconds: 15
               milliseconds: 0
-          - service: rest_command.solax_local_set_forced_charge_stop2
+          - action: rest_command.solax_local_set_forced_charge_stop2
             data:
               # Switch off forced charge 1 minute before session start
               value: >-
@@ -510,7 +510,7 @@
               minutes: 0
               seconds: 15
               milliseconds: 0
-          - service: homeassistant.update_entity
+          - action: homeassistant.update_entity
             entity_id: sensor.solax_rest_local_settings
 
         until:
@@ -527,7 +527,7 @@
   alias: Battery - Saving Sessions - Enable forced discharge
   description: "Maximise export by forcing battery discharge"
   trigger:
-    - platform: time_pattern
+    - trigger: time_pattern
       minutes: "/1"
   condition:
     - condition: template
@@ -536,12 +536,12 @@
             and states('input_select.saving_session_today') == 'yes' 
             and as_datetime(states('input_datetime.saving_session_start')).timestamp() < now().timestamp() }}
   action:
-    - service: automation.turn_off
+    - action: automation.turn_off
       data:
         stop_actions: true
       target:
         entity_id: automation.battery_enable_forced_charge_before_saving_session
-    - service: automation.turn_on
+    - action: automation.turn_on
       data: {}
       target:
         entity_id: automation.battery_saving_sessions_return_to_self_use
@@ -558,7 +558,7 @@
 #      option: Stopped
     - repeat:
         sequence:
-          - service: rest_command.solax_local_set_inverter_mode
+          - action: rest_command.solax_local_set_inverter_mode
             data:
               # 0: self use, 1: feed in priority, 2: back up, 3: manual
               value: >
@@ -568,7 +568,7 @@
               minutes: 0
               seconds: 15
               milliseconds: 0
-          - service: rest_command.solax_local_set_manual_mode_behaviour
+          - action: rest_command.solax_local_set_manual_mode_behaviour
             data:
               # 0: do nothing, 1: forced charge, 2: forced discharge
               value: >
@@ -578,7 +578,7 @@
               minutes: 0
               seconds: 15
               milliseconds: 0
-          - service: homeassistant.update_entity
+          - action: homeassistant.update_entity
             entity_id: sensor.solax_rest_local_settings
 
         until:
@@ -592,7 +592,7 @@
   alias: Battery - Saving Sessions - Disable automations
   description: "A few minutes after the event (current/next get updated), disable most of the automations related to saving sessions"
   trigger:
-    - platform: state
+    - trigger: state
       entity_id:
         - input_select.saving_session_today
       from: "yes"
@@ -602,17 +602,17 @@
         minutes: 5
         seconds: 0
   action:
-    - service: automation.turn_off
+    - action: automation.turn_off
       data:
         stop_actions: true
       target:
         entity_id: automation.battery_saving_sessions_enable_forced_discharge
-    - service: automation.turn_off
+    - action: automation.turn_off
       data:
         stop_actions: true
       target:
         entity_id: automation.battery_enable_forced_charge_before_saving_session
-    - service: automation.turn_off
+    - action: automation.turn_off
       data:
         stop_actions: false
       target:
@@ -624,14 +624,14 @@
   description: "Stop forced discharge and return to normal operation"
   # Go back to normal operation if the battery is empty (managed to discharge everything) or the session has ended
   trigger:
-    - platform: numeric_state
+    - trigger: numeric_state
       entity_id: sensor.solax_local_battery_soc
       below: 11
       for:
         hours: 0
         minutes: 3
         seconds: 0
-    - platform: state
+    - trigger: state
       entity_id:
         - binary_sensor.octopus_energy_a_7e9f23d1_octoplus_saving_sessions
       from: "on"
@@ -645,7 +645,7 @@
       value_template: >-
         {{ (states('sensor.solax_local_inverter_mode') == 'Manual' or states('sensor.solax_local_battery_chd2_enabled')|bool==true) }}
   action:
-    - service: automation.turn_off
+    - action: automation.turn_off
       data:
         stop_actions: true
       target:
@@ -657,7 +657,7 @@
               minutes: 0
               seconds: 15
               milliseconds: 0
-          - service: rest_command.solax_local_set_inverter_mode
+          - action: rest_command.solax_local_set_inverter_mode
             data:
               # 0: self use, 1: feed in priority, 2: back up, 3: manual
               value: >
@@ -667,7 +667,7 @@
               minutes: 0
               seconds: 15
               milliseconds: 0
-          - service: rest_command.solax_local_set_period2_enable
+          - action: rest_command.solax_local_set_period2_enable
             data:
               # 1 = enabled, 0 = disabled
               enabled: >
@@ -677,7 +677,7 @@
               minutes: 0
               seconds: 15
               milliseconds: 0
-          - service: homeassistant.update_entity
+          - action: homeassistant.update_entity
             entity_id: sensor.solax_rest_local_settings
 
         until:
@@ -697,7 +697,7 @@
   alias: Battery - Enable forced charge outside night hours
   description: Stops allowed discharge and allows for charging to target
   trigger:
-    - platform: time_pattern
+    - trigger: time_pattern
       minutes: /1
   condition:
     #    - condition: time
@@ -716,7 +716,7 @@
   action:
     - repeat:
         sequence:
-          - service: rest_command.solax_local_set_forced_charge_start
+          - action: rest_command.solax_local_set_forced_charge_start
             data:
               value: "{% set hour = as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%H')|int %}
               {% set minute = as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%M')|int %}
@@ -726,7 +726,7 @@
               minutes: 0
               seconds: 15
               milliseconds: 0
-          - service: homeassistant.update_entity
+          - action: homeassistant.update_entity
             entity_id: sensor.solax_rest_local_settings
         until:
           - condition: template
@@ -734,7 +734,7 @@
           == as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%H:%M') or repeat.index == 3 }}"
     - repeat:
         sequence:
-          - service: rest_command.solax_local_set_forced_charge_stop
+          - action: rest_command.solax_local_set_forced_charge_stop
             data:
               value: "{% set hour = as_timestamp(states('sensor.octopus_intelligent_offpeak_end'))|timestamp_custom ('%H')|int %}
               {% set minute = as_timestamp(states('sensor.octopus_intelligent_offpeak_end'))|timestamp_custom ('%M')|int %}
@@ -744,7 +744,7 @@
               minutes: 0
               seconds: 15
               milliseconds: 0
-          - service: homeassistant.update_entity
+          - action: homeassistant.update_entity
             entity_id: sensor.solax_rest_local_settings
         until:
           - condition: template
@@ -756,7 +756,7 @@
   alias: Battery - Enable forced charge for night hours
   description: Battery - Enable forced charge during night tariff
   trigger:
-    - platform: time_pattern
+    - trigger: time_pattern
       minutes: /1
   condition:
     - condition: state
@@ -771,7 +771,7 @@
   action:
     - repeat:
         sequence:
-          - service: rest_command.solax_local_set_forced_charge_start
+          - action: rest_command.solax_local_set_forced_charge_start
             data:
               value: "{% set hour = as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%H')|int %}
               {% set minute = as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%M')|int %}
@@ -781,7 +781,7 @@
               minutes: 0
               seconds: 15
               milliseconds: 0
-          - service: homeassistant.update_entity
+          - action: homeassistant.update_entity
             entity_id: sensor.solax_rest_local_settings
         until:
           - condition: template
@@ -789,7 +789,7 @@
           == as_timestamp(states('sensor.octopus_intelligent_next_offpeak_start'))|timestamp_custom ('%H:%M') or repeat.index == 3 }}"
     - repeat:
         sequence:
-          - service: rest_command.solax_local_set_forced_charge_stop
+          - action: rest_command.solax_local_set_forced_charge_stop
             data:
               value: "{% set hour = as_timestamp(states('sensor.octopus_intelligent_offpeak_end'))|timestamp_custom ('%H')|int %}
               {% set minute = as_timestamp(states('sensor.octopus_intelligent_offpeak_end'))|timestamp_custom ('%M')|int %}
@@ -799,7 +799,7 @@
               minutes: 0
               seconds: 15
               milliseconds: 0
-          - service: homeassistant.update_entity
+          - action: homeassistant.update_entity
             entity_id: sensor.solax_rest_local_settings
         until:
           - condition: template
@@ -811,7 +811,7 @@
   alias: Battery - When charging EV
   description: Prevents the Battery emptying into the EV when on charge
   trigger:
-    - platform: time_pattern
+    - trigger: time_pattern
       minutes: /1
   condition:
     #    - condition: state
@@ -834,7 +834,7 @@
   action:
     - repeat:
         sequence:
-          - service: rest_command.solax_local_set_battery_min_soc
+          - action: rest_command.solax_local_set_battery_min_soc
             data:
               level: 100
           - delay:
@@ -842,7 +842,7 @@
               minutes: 0
               seconds: 10
               milliseconds: 0
-          - service: homeassistant.update_entity
+          - action: homeassistant.update_entity
             entity_id: sensor.solax_rest_local_settings
         until:
           - condition: template
@@ -855,7 +855,7 @@
   alias: Battery - When NOT charging EV
   description: Resets the Battery Min SOC back to 11
   trigger:
-    - platform: time_pattern
+    - trigger: time_pattern
       minutes: /1
   condition:
     #    - condition: state
@@ -878,7 +878,7 @@
   action:
     - repeat:
         sequence:
-          - service: rest_command.solax_local_set_battery_min_soc
+          - action: rest_command.solax_local_set_battery_min_soc
             data:
               level: 11
           - delay:
@@ -886,7 +886,7 @@
               minutes: 0
               seconds: 10
               milliseconds: 0
-          - service: homeassistant.update_entity
+          - action: homeassistant.update_entity
             entity_id: sensor.solax_rest_local_settings
         until:
           - condition: template
@@ -899,7 +899,7 @@
   alias: Close gates @ 23:31 Every Night
   description: ''
   trigger:
-    - platform: time
+    - trigger: time
       at: '23:31:00'
   condition: [ ]
   action:
