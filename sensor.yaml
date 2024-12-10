@@ -115,8 +115,8 @@
 
 - platform: template
   sensors:
-    hot_tub_heat_time:
-      friendly_name: "Hot Tub Heat Time"
+    spa_heat_time:
+      friendly_name: "Spa Heat Time"
       unit_of_measurement: "hours"
       value_template: >-
         {% set initial_temp = state_attr('climate.spa_thermostat','current_temperature')|float %}
@@ -131,8 +131,8 @@
 
 - platform: template
   sensors:
-    hot_tub_weather_compensated_setpoint:
-      friendly_name: "Hot Tub Weather Compensated Setpoint"
+    spa_weather_compensated_setpoint:
+      friendly_name: "Spa Weather Compensated Setpoint"
       unit_of_measurement: "C"
       value_template: >-
         {% set outside_temp = states('sensor.home_realfeel_temperature')|float %}
