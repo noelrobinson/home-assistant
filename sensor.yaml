@@ -140,5 +140,5 @@
         {% set temp_0c = 38 %}
         {% set max_temp = 40 %}
         {% set min_temp = 25 %}
-        {% set weather_compensated_setpoint = ((((temp_20c - temp_0c) / 20) * outside_temp) + temp_0c) %}
+        {% set weather_compensated_setpoint = ((((temp_20c - temp_0c) / 20) * outside_temp) + temp_0c ) | round(1, "half", default) %}
         {{ weather_compensated_setpoint }}
