@@ -1,3 +1,4 @@
+
 # Loads default set of integrations. Do not remove.
 default_config:
 
@@ -16,26 +17,29 @@ logger:
   #   custom_components.powercalc: debug
 
 input_boolean:
+
   prioritise_ev_charging:
     name: prioritise_ev_charging
     initial: false
 
 input_select:
+
   living_room_hvac_mode:
     name: living_room_hvac_mode
     options:
-      - "heat"
-      - "off"
-    initial: "off"
+      - 'heat'
+      - 'off'
+    initial: 'off'
 
   saving_session_today:
     name: saving_session_today
     options:
-      - "yes"
-      - "no"
-    initial: "no"
+      - 'yes'
+      - 'no'
+    initial: 'no'
 
 input_datetime:
+
   saving_session_start:
     name: saving_session_start
     has_date: true
@@ -47,6 +51,7 @@ input_datetime:
     has_time: true
 
 input_number:
+
   # Min 10 (to avoid going up to quickly), step every 5min to easier use
   ground_floor_temp_target_min_cycle_duration:
     name: ground_floor_temp_target_min_cycle_duration
@@ -99,7 +104,7 @@ input_number:
 
   evening_immersion_target:
     name: evening_immersion_target
-    unit_of_measurement: "kWh"
+    unit_of_measurement: 'kWh'
     initial: 2.0
     min: 0.0
     max: 5.0
@@ -107,7 +112,7 @@ input_number:
 
   night_min_immersion_target:
     name: night_min_immersion_target
-    unit_of_measurement: "kWh"
+    unit_of_measurement: 'kWh'
     initial: 3
     min: 0
     max: 8
@@ -115,7 +120,7 @@ input_number:
 
   night_immersion_target:
     name: night_immersion_target
-    unit_of_measurement: "kWh"
+    unit_of_measurement: 'kWh'
     initial: 9
     min: 0
     max: 12
@@ -129,7 +134,7 @@ input_number:
 
   electricity_tariff_cost:
     name: electricity_tariff_cost
-    unit_of_measurement: "GBP/kWh"
+    unit_of_measurement: 'GBP/kWh'
     initial: 0.0
     min: 0.0
     max: 1.0
@@ -266,7 +271,7 @@ template:
           {% set total = total + (grid|float if is_number(grid) else 0) %}
           {{ total }}
         state_class: measurement
-        icon: "mdi:flash"
+        icon: 'mdi:flash'
         unit_of_measurement: W
         device_class: power
 
@@ -382,7 +387,7 @@ template:
       ### Battery charging/discharging power (positive for charging the battery) ###
       - name: "Solax Local Battery Power"
         unique_id: solax_local_battery_power
-        state: >
+        state:  >
           {% if state_attr('sensor.solax_local', 'Data')[16] > 32767 %}{{ state_attr('sensor.solax_local', 'Data')[16] - 65536 }}
           {% else %}{{ state_attr('sensor.solax_local', 'Data')[16] }}{% endif %}
         unit_of_measurement: "W"
@@ -392,7 +397,7 @@ template:
       # Assuming 75W for running inverter and battery plus 95% conversion efficiency; if above 1kW, trust the inverter
       - name: "Solax Local Battery Power Adjusted"
         unique_id: solax_local_battery_power_adjusted
-        state: >
+        state:  >
           {% set ac = states('sensor.solax_local_inverter_power')|int %}
           {% set battery = states('sensor.solax_local_battery_power')|int %}
           {% set pv = (states('sensor.solax_local_pv_output')|float * 0.95)| round(0) %}
@@ -498,7 +503,7 @@ template:
       ### Feed-in power (positive for feed-in, negative for consumption) ###
       - name: "Solax Local Feedin Power"
         unique_id: solax_local_feedin_power
-        state: >
+        state:  >
           {% if state_attr('sensor.solax_local', 'Data')[32] > 32767 %}{{ (state_attr('sensor.solax_local', 'Data')[32] - 65536) }}
           {% else %}{{ state_attr('sensor.solax_local', 'Data')[32] }}{% endif %}
         unit_of_measurement: "W"
@@ -586,7 +591,7 @@ template:
             {{ (states('sensor.energy_production_tomorrow')) }}
           {% endif %}
 
-      - name: "Daily Hot Water Total"
+      - name: 'Daily Hot Water Total'
         unique_id: daily_hot_water_total
         device_class: energy
         unit_of_measurement: kWh
@@ -628,7 +633,7 @@ template:
                   or (pv >  800 and alreadyOn==true  and batteryLevel >= 80)                
                   or 
           #}
-
+          
           {{ bc and ((pv >  500 and alreadyOn==false and batteryLevel >  93)
                   or (pv >  500 and alreadyOn==true  and batteryLevel >= 90)) }}
 
@@ -638,6 +643,7 @@ powercalc:
   sensors: !include powercalc.yaml
 
 utility_meter:
+
   # TODO: name needs to charge once powercalc is tidied up
   daily_solar:
     source: sensor.solar_panels_v2_energy
@@ -805,6 +811,7 @@ utility_meter:
 ### Commands for controlling the Solax Local inverter
 
 rest_command:
+
   solax_local_set_charge_battery_from_grid:
     url: !secret solax_local_ip
     method: post
