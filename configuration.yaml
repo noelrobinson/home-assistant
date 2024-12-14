@@ -548,6 +548,11 @@ template:
         state: "{{ (states('sensor.daily_grid_offpeak')| float(default=0) / (states('sensor.daily_grid_offpeak')| float(default=0) + states('sensor.daily_grid_peak') | float(default=0)) * 100) | round(0) }}"
         unit_of_measurement: "%"
 
+      - name: "Spa Offpeak Use"
+        unique_id: spa_offpeak_use
+        state: "{{ (states('sensor.daily_spa_offpeak')| float(default=0) / (states('sensor.daily_spa_offpeak')| float(default=0) + states('sensor.daily_spa_peak') | float(default=0)) * 100) | round(0) }}"
+        unit_of_measurement: "%"
+
       ### Estimated self-use energy ###
       - name: "Solax Local Self Use Aggregated Energy"
         unique_id: solax_local_self_use_aggregated_energy
