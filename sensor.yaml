@@ -21,7 +21,7 @@
     - powerdc1
     - powerdc2
     - batStatus
-  value_template: 'Active'  # dummy value, not used; avoids the "State max length is 255 characters" error
+  value_template: "Active" # dummy value, not used; avoids the "State max length is 255 characters" error
   name: "solax_rest_cloud"
 
 ### Solax Local REST sensor ###
@@ -37,7 +37,7 @@
     - type
     - Data
     - Information
-  value_template: 'OK'  # dummy value, not used; avoids the "State max length is 255 characters" error
+  value_template: "OK" # dummy value, not used; avoids the "State max length is 255 characters" error
 
 ### Solax Local REST settings ###
 - platform: rest
@@ -59,19 +59,19 @@
   # 9 - Forced charge end (2nd)
   # 10 - Inverter mode - 0: self use, 1: feed in priority, 2: back up, 3: manual
   # 11 - Manual mode behaviour - 0: do nothing, 1: forced charge, 2: forced discharge
-  value_template: "{{ '[' ~ 
-                      value.split(',')[28] ~ ',' ~ 
-                      value.split(',')[29] ~ ',' ~ 
-                      value.split(',')[30] ~ ',' ~ 
-                      value.split(',')[36] ~ ',' ~ 
-                      value.split(',')[37] ~ ',' ~ 
-                      value.split(',')[38] ~ ',' ~ 
-                      value.split(',')[39] ~ ',' ~ 
-                      value.split(',')[40] ~ ',' ~ 
-                      value.split(',')[41] ~ ',' ~ 
-                      value.split(',')[42] ~ ',' ~ 
-                      value.split(',')[27] ~ ',' ~ 
-                      value.split(',')[35] ~ ']' }}"
+  value_template: "{{ '[' ~
+    value.split(',')[28] ~ ',' ~
+    value.split(',')[29] ~ ',' ~
+    value.split(',')[30] ~ ',' ~
+    value.split(',')[36] ~ ',' ~
+    value.split(',')[37] ~ ',' ~
+    value.split(',')[38] ~ ',' ~
+    value.split(',')[39] ~ ',' ~
+    value.split(',')[40] ~ ',' ~
+    value.split(',')[41] ~ ',' ~
+    value.split(',')[42] ~ ',' ~
+    value.split(',')[27] ~ ',' ~
+    value.split(',')[35] ~ ']' }}"
 
 # Smooth out solar forecast as it often gets very choppy
 - platform: filter
@@ -142,3 +142,35 @@
         {% set min_temp = 25 %}
         {% set weather_compensated_setpoint = ((((temp_20c - temp_0c) / 20) * outside_temp) + temp_0c ) | round(1, "half", default) %}
         {{ weather_compensated_setpoint }}
+
+- platform: template
+  sensors:
+    daily_spa_peak_cost:
+      friendly_name: "Daily Spa Peak Cost"
+      unit_of_measurement: "£"
+      value_template: >-
+        {{ states('sensor.daily_spa_peak') | float * 0.23713 | float }}
+
+- platform: template
+  sensors:
+    daily_spa_off_peak_cost:
+      friendly_name: "Daily Spa Off Peak Cost"
+      unit_of_measurement: "£"
+      value_template: >-
+        {{ states('sensor.daily_spa_offpeak') | float * 0.07 | float }}
+
+- platform: template
+  sensors:
+    daily_spa_cost:
+      friendly_name: "Daily Spa Cost"
+      unit_of_measurement: "£"
+      value_template: >-
+        {{ states('sensor.daily_spa_peak') | float * 0.23713 | float + states('sensor.daily_spa_offpeak') | float * 0.07 | float }}
+
+- platform: template
+  sensors:
+    monthly_spa_cost:
+      friendly_name: "Monthly Spa Cost"
+      unit_of_measurement: "£"
+      value_template: >-
+        {{ states('sensor.monthly_spa_peak') | float * 0.23713 | float + states('sensor.monthly_spa_offpeak') | float * 0.07 | float }}
