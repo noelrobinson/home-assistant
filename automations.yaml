@@ -282,16 +282,6 @@
         entity_id: select.daily_hot_water
       data:
         option: "{{ tariff }}"
-    - action: select.select_option
-      target:
-        entity_id: select.daily_tesla_charging
-      data:
-        option: "{{ tariff }}"
-    - action: select.select_option
-      target:
-        entity_id: select.monthly_tesla_charging
-      data:
-        option: "{{ tariff }}"
 #    - action: select.select_option
 #      target:
 #        entity_id: select.daily_zappi_charging
@@ -342,6 +332,26 @@
     - action: select.select_option
       target:
         entity_id: select.monthly_grid
+      data:
+        option: "{{ tariff }}"
+    - action: select.select_option
+      target:
+        entity_id: select.daily_tesla_charging
+      data:
+        option: "{{ tariff }}"
+    - action: select.select_option
+      target:
+        entity_id: select.monthly_tesla_charging
+      data:
+        option: "{{ tariff }}"
+    - action: select.select_option
+      target:
+        entity_id: select.daily_spa
+      data:
+        option: "{{ tariff }}"
+    - action: select.select_option
+      target:
+        entity_id: select.monthly_spa
       data:
         option: "{{ tariff }}"
     - action: input_number.set_value
