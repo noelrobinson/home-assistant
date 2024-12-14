@@ -268,16 +268,6 @@
         entity_id: select.daily_hot_water
       data:
         option: '{{ tariff }}'
-#    - action: select.select_option
-#      target:
-#        entity_id: select.daily_tesla_charging
-#      data:
-#        option: '{{ tariff }}'
-#    - action: select.select_option
-#      target:
-#        entity_id: select.monthly_tesla_charging
-#      data:
-#        option: '{{ tariff }}'
 - id: '1302984839203'
   alias: Tariffs - Switch electricity tariff
   description: Set electricity tariff for utility sensor
@@ -322,28 +312,27 @@
       target:
         entity_id: select.daily_tesla_charging
       data:
-        option: "{{ tariff }}"
+        option: '{{ tariff }}'
     - action: select.select_option
       target:
         entity_id: select.monthly_tesla_charging
       data:
-        option: "{{ tariff }}"
+        option: '{{ tariff }}'
     - action: select.select_option
       target:
         entity_id: select.daily_spa
       data:
-        option: "{{ tariff }}"
+        option: '{{ tariff }}'
     - action: select.select_option
       target:
         entity_id: select.monthly_spa
       data:
-        option: "{{ tariff }}"
+        option: '{{ tariff }}'
     - action: input_number.set_value
       target:
         entity_id: input_number.electricity_tariff_cost
       data:
-        value: '{% set cost = dict(peak=0.23713, offpeak=0.07) %} {{ cost[tariff] }}
-        '
+        value: '{% set cost = dict(peak=0.23713, offpeak=0.07) %} {{ cost[tariff] }} '
   mode: single
 - id: '1019847854392'
   alias: Inverter - Refresh local energy readings
@@ -891,6 +880,12 @@
       data:
         temperature: '{{ states(''sensor.spa_weather_compensated_setpoint'')  | float
         | round(0) + 2 }}'
+      target:
+        entity_id: climate.spa_thermostat
+    - action: climate.set_hvac_mode
+      metadata: {}
+      data:
+        hvac_mode: heat
       target:
         entity_id: climate.spa_thermostat
   mode: single
