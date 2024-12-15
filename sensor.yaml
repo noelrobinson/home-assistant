@@ -146,31 +146,35 @@
 - platform: template
   sensors:
     daily_spa_peak_cost:
+      unique_id: bc06f39f-38e0-4d32-9abc-e3c8a9e724bb
       friendly_name: "Daily Spa Peak Cost"
       unit_of_measurement: "£"
       value_template: >-
-        {{ states('sensor.daily_spa_peak') | float * 0.23713 | float }}
+        {{ states('sensor.daily_spa_peak') | float * states('input_number.electricity_tariff_cost_peak') | float }}
 
 - platform: template
   sensors:
     daily_spa_off_peak_cost:
+      unique_id: 394fbe85-fee5-4a5b-a5d0-b055693c9b9b
       friendly_name: "Daily Spa Off Peak Cost"
       unit_of_measurement: "£"
       value_template: >-
-        {{ states('sensor.daily_spa_offpeak') | float * 0.07 | float }}
+        {{ states('sensor.daily_spa_offpeak') | float * states('input_number.electricity_tariff_cost_offpeak') | float }}
 
 - platform: template
   sensors:
     daily_spa_cost:
+      unique_id: d4eab574-6fc7-44cf-8054-bb5d1873554f
       friendly_name: "Daily Spa Cost"
       unit_of_measurement: "£"
       value_template: >-
-        {{ states('sensor.daily_spa_peak') | float * 0.23713 | float + states('sensor.daily_spa_offpeak') | float * 0.07 | float }}
+        {{ states('sensor.daily_spa_peak') | float * states('input_number.electricity_tariff_cost_peak') | float + states('sensor.daily_spa_offpeak') | float * states('input_number.electricity_tariff_cost_offpeak') | float }}
 
 - platform: template
   sensors:
     monthly_spa_cost:
+      unique_id: 0b5e6965-ff97-4e65-bb61-e07089e29484
       friendly_name: "Monthly Spa Cost"
       unit_of_measurement: "£"
       value_template: >-
-        {{ states('sensor.monthly_spa_peak') | float * 0.23713 | float + states('sensor.monthly_spa_offpeak') | float * 0.07 | float }}
+        {{ states('sensor.monthly_spa_peak') | float * states('input_number.electricity_tariff_cost_peak') | float + states('sensor.monthly_spa_offpeak') | float * states('input_number.electricity_tariff_cost_offpeak') | float }}
