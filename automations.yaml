@@ -1057,3 +1057,80 @@
       entity_id: 89574fa5b8cdc46b734c5cef0184d199
       domain: switch
   mode: single
+- id: '1734297616094'
+  alias: Spa Water Top Up
+  description: ''
+  triggers:
+    - trigger: state
+      entity_id:
+        - input_boolean.spa_water_top_up
+      from: 'off'
+      to: 'on'
+  conditions:
+    - condition: state
+      entity_id: binary_sensor.octopus_intelligent_slot
+      state: 'off'
+  actions:
+    - type: turn_off
+      device_id: b81d1e055479a535ec428ef2f24f44c9
+      entity_id: 89574fa5b8cdc46b734c5cef0184d199
+      domain: switch
+  mode: single
+- id: '1734298131758'
+  alias: 'Spa Top Up Off peak turn on heat mode '
+  description: ''
+  triggers:
+    - trigger: state
+      entity_id:
+        - binary_sensor.octopus_intelligent_slot
+      from: 'off'
+      to: 'on'
+  conditions:
+    - condition: state
+      entity_id: input_boolean.spa_water_top_up
+      state: 'on'
+  actions:
+    - type: turn_on
+      device_id: b81d1e055479a535ec428ef2f24f44c9
+      entity_id: 89574fa5b8cdc46b734c5cef0184d199
+      domain: switch
+    - action: switch.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id: input_boolean.spa_water_top_up
+  mode: single
+- id: '1734419722333'
+  alias: Spa Heat Pause Off
+  description: ''
+  triggers:
+    - trigger: state
+      entity_id:
+        - input_boolean.spa_water_top_up
+      from: 'on'
+      to: 'off'
+  conditions: []
+  actions:
+    - type: turn_on
+      device_id: b81d1e055479a535ec428ef2f24f44c9
+      entity_id: 89574fa5b8cdc46b734c5cef0184d199
+      domain: switch
+  mode: single
+- id: '1734471144543'
+  alias: Windy night
+  description: ''
+  triggers:
+    - type: wind_speed
+      device_id: 0d087e1f6135812e414581df41709afb
+      entity_id: c4cca9cdcb71a26ccd216cbc3f878447
+      domain: sensor
+      trigger: device
+      above: 35
+  conditions: []
+  actions:
+    - device_id: a33ca33ccb3f9a2cea06a35767048af2
+      domain: mobile_app
+      type: notify
+      message: Windy tonight, shut the gates.
+      title: Windy alert
+  mode: single
