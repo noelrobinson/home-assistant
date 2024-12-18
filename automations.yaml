@@ -274,18 +274,18 @@
   variables:
     tariff: offpeak
   trigger:
-    - type: turned_on
-      trigger: device
-      device_id: fe4e6403b07c3862ffee15a68572ba9d
-      entity_id: binary_sensor.octopus_intelligent_slot
-      domain: binary_sensor
+    - trigger: state
+      entity_id:
+        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
+      from: 'off'
+      to: 'on'
       variables:
         tariff: offpeak
-    - type: turned_off
-      trigger: device
-      device_id: fe4e6403b07c3862ffee15a68572ba9d
-      entity_id: binary_sensor.octopus_intelligent_slot
-      domain: binary_sensor
+    - trigger: state
+      entity_id:
+        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
+      from: 'on'
+      to: 'off'
       variables:
         tariff: peak
     - trigger: time
@@ -657,7 +657,7 @@
       minutes: /1
   condition:
     - condition: state
-      entity_id: binary_sensor.octopus_intelligent_slot
+      entity_id: binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
       state: 'on'
       for:
         hours: 0
@@ -714,7 +714,7 @@
       minutes: /1
   condition:
     - condition: state
-      entity_id: binary_sensor.octopus_intelligent_slot
+      entity_id: binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
       state: 'off'
       for:
         hours: 0
@@ -870,7 +870,7 @@
   triggers:
     - trigger: state
       entity_id:
-        - binary_sensor.octopus_intelligent_slot
+        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
       from: 'off'
       to: 'on'
   conditions: []
@@ -895,7 +895,7 @@
   triggers:
     - trigger: state
       entity_id:
-        - binary_sensor.octopus_intelligent_slot
+        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
       from: 'on'
       to: 'off'
   conditions: []
@@ -928,7 +928,7 @@
       above: 18
   conditions:
     - condition: state
-      entity_id: binary_sensor.octopus_intelligent_slot
+      entity_id: binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
       state: 'off'
   actions:
     - device_id: a33ca33ccb3f9a2cea06a35767048af2
@@ -947,7 +947,7 @@
   triggers:
     - trigger: state
       entity_id:
-        - binary_sensor.octopus_intelligent_slot
+        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
       from: 'off'
       to: 'on'
   conditions:
@@ -972,7 +972,7 @@
   triggers:
     - trigger: state
       entity_id:
-        - binary_sensor.octopus_intelligent_slot
+        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
       from: 'on'
       to: 'off'
   conditions:
@@ -993,7 +993,7 @@
       hours: /1
   conditions:
     - condition: state
-      entity_id: binary_sensor.octopus_intelligent_slot
+      entity_id: binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
       state: 'off'
   actions:
     - action: climate.set_temperature
@@ -1068,7 +1068,7 @@
       to: 'on'
   conditions:
     - condition: state
-      entity_id: binary_sensor.octopus_intelligent_slot
+      entity_id: binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
       state: 'off'
   actions:
     - type: turn_off
@@ -1082,7 +1082,7 @@
   triggers:
     - trigger: state
       entity_id:
-        - binary_sensor.octopus_intelligent_slot
+        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
       from: 'off'
       to: 'on'
   conditions:
