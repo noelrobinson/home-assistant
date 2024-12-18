@@ -1134,3 +1134,33 @@
       message: Windy tonight, shut the gates.
       title: Windy alert
   mode: single
+- id: '1734537593643'
+  alias: Christmas Lights On
+  description: ''
+  triggers:
+    - trigger: sun
+      event: sunset
+      offset: 0
+  conditions: []
+  actions:
+    - type: turn_on
+      device_id: 650163cb259a651cd1b5167e4a0ba955
+      entity_id: 6bbdd9225f4d3235a087e0410581015f
+      domain: switch
+  mode: single
+- id: '1734537643511'
+  alias: Christmas Lights Off
+  description: ''
+  triggers:
+    - trigger: sun
+      event: sunrise
+      offset: 0
+    - trigger: time
+      at: '23:00:00'
+  conditions: []
+  actions:
+    - type: turn_off
+      device_id: 650163cb259a651cd1b5167e4a0ba955
+      entity_id: 6bbdd9225f4d3235a087e0410581015f
+      domain: switch
+  mode: single
