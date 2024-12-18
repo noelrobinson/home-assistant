@@ -178,3 +178,19 @@
       unit_of_measurement: "£"
       value_template: >-
         {{ states('sensor.monthly_spa_peak') | float * states('input_number.electricity_tariff_cost_peak') | float + states('sensor.monthly_spa_offpeak') | float * states('input_number.electricity_tariff_cost_offpeak') | float }}
+
+- platform: template
+  sensors:
+    next_off_peak_rate_start_time:
+      unique_id: 60f31dd2-7db9-42ed-a592-3abb8e38d7e4
+      friendly_name: "Next Off Peak Start"
+      value_template: >-
+        {{ state_attr('binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching', 'next_start') }}
+
+- platform: template
+  sensors:
+    next_off_peak_rate_end_time:
+      unique_id: f85d6def-fb51-4064-8052-bb097c2022ba
+      friendly_name: "Next Off Peak End"
+      value_template: >-
+        {{ state_attr('binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching', 'next_end') }}
