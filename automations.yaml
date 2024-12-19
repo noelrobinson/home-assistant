@@ -1141,6 +1141,9 @@
     - trigger: sun
       event: sunset
       offset: 0
+    - trigger: sun
+      event: sunrise
+      offset: "-01:15:00"
   conditions: []
   actions:
     - type: turn_on
