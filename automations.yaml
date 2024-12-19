@@ -1140,7 +1140,7 @@
   triggers:
     - trigger: sun
       event: sunset
-      offset: 0
+      offset: "00:30:00"
     - trigger: sun
       event: sunrise
       offset: "-01:15:00"
