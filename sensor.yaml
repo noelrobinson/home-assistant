@@ -194,3 +194,11 @@
       friendly_name: "Next Off Peak End"
       value_template: >-
         {{ state_attr('binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching', 'next_end') }}
+
+- platform: template
+  sensors:
+    current_off_peak_rate_end_time:
+      unique_id: 66081380-0668-415c-9c7e-fcb8533c3e52
+      friendly_name: "Current Off Peak End"
+      value_template: >-
+        {{ state_attr('binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching', 'current_end') }}

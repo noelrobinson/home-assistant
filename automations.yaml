@@ -690,8 +690,8 @@
         sequence:
           - action: rest_command.solax_local_set_forced_charge_stop
             data:
-              value: '{% set hour = as_timestamp(states(''sensor.next_off_peak_rate_end_time''))|timestamp_custom
-            (''%H'')|int %} {% set minute = as_timestamp(states(''sensor.next_off_peak_rate_end_time''))|timestamp_custom
+              value: '{% set hour = as_timestamp(states(''sensor.current_off_peak_rate_end_time''))|timestamp_custom
+            (''%H'')|int %} {% set minute = as_timestamp(states(''sensor.current_off_peak_rate_end_time''))|timestamp_custom
             (''%M'')|int %} {{ hour + minute * 256 }}'
           - delay:
               hours: 0
@@ -703,7 +703,7 @@
         until:
           - condition: template
             value_template: '{{ states(''sensor.solax_local_battery_setting_stop_charge'')
-          == as_timestamp(states(''sensor.next_off_peak_rate_end_time''))|timestamp_custom
+          == as_timestamp(states(''sensor.current_off_peak_rate_end_time''))|timestamp_custom
           (''%H:%M'') or repeat.index == 3 }}'
   mode: single
 - id: '1029376657479'
@@ -747,8 +747,8 @@
         sequence:
           - action: rest_command.solax_local_set_forced_charge_stop
             data:
-              value: '{% set hour = as_timestamp(states(''sensor.next_off_peak_rate_end_time''))|timestamp_custom
-            (''%H'')|int %} {% set minute = as_timestamp(states(''sensor.next_off_peak_rate_end_time''))|timestamp_custom
+              value: '{% set hour = as_timestamp(states(''sensor.current_off_peak_rate_end_time''))|timestamp_custom
+            (''%H'')|int %} {% set minute = as_timestamp(states(''sensor.current_off_peak_rate_end_time''))|timestamp_custom
             (''%M'')|int %} {{ hour + minute * 256 }}'
           - delay:
               hours: 0
@@ -760,7 +760,7 @@
         until:
           - condition: template
             value_template: '{{ states(''sensor.solax_local_battery_setting_stop_charge'')
-          == as_timestamp(states(''sensor.next_off_peak_rate_end_time''))|timestamp_custom
+          == as_timestamp(states(''sensor.current_off_peak_rate_end_time''))|timestamp_custom
           (''%H:%M'') or repeat.index == 3 }}'
   mode: single
 - id: '1029376657477'
