@@ -116,6 +116,7 @@
 - platform: template
   sensors:
     spa_heat_time:
+      unique_id: a189ddea-e8e2-4882-9813-643fe122d92f
       friendly_name: "Spa Heat Time"
       unit_of_measurement: "hours"
       value_template: >-
@@ -132,6 +133,7 @@
 - platform: template
   sensors:
     spa_weather_compensated_setpoint:
+      unique_id: 668d0ac4-c6ca-484a-a6c4-2105349d4745
       friendly_name: "Spa Weather Compensated Setpoint"
       unit_of_measurement: "C"
       value_template: >-
