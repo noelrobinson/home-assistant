@@ -1125,12 +1125,11 @@
   alias: Windy night
   description: ''
   triggers:
-    - type: wind_speed
-      device_id: 0d087e1f6135812e414581df41709afb
-      entity_id: c4cca9cdcb71a26ccd216cbc3f878447
-      domain: sensor
-      trigger: device
-      above: 35
+    - trigger: numeric_state
+      entity_id:
+        - weather.forecast_home
+      attribute: wind_speed
+      above: 30
   conditions: []
   actions:
     - device_id: a33ca33ccb3f9a2cea06a35767048af2
@@ -1155,6 +1154,10 @@
       device_id: 650163cb259a651cd1b5167e4a0ba955
       entity_id: 6bbdd9225f4d3235a087e0410581015f
       domain: switch
+    - type: turn_on
+      device_id: 650163cb259a651cd1b5167e4a0ba955
+      entity_id: 14a5d8f576713dbc07cb955eb76ea92e
+      domain: switch
   mode: single
 - id: '1734537643511'
   alias: Christmas Lights Off
@@ -1170,6 +1173,10 @@
     - type: turn_off
       device_id: 650163cb259a651cd1b5167e4a0ba955
       entity_id: 6bbdd9225f4d3235a087e0410581015f
+      domain: switch
+    - type: turn_off
+      device_id: 650163cb259a651cd1b5167e4a0ba955
+      entity_id: 14a5d8f576713dbc07cb955eb76ea92e
       domain: switch
   mode: single
 - id: '1734680558837'
