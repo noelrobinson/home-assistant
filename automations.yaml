@@ -1219,3 +1219,35 @@
         time: '{{ (as_timestamp(states(''sensor.current_off_peak_rate_end_time'')) -
         as_timestamp(states(''sensor.next_off_peak_rate_start_time'')) - 3600) | timestamp_custom(''%H:%M'')}}'
   mode: single
+- id: '1734783186956'
+  alias: Reset Filter Cycle 2
+  description: ''
+  triggers:
+    - trigger: time
+      at: '11:15:00'
+      enabled: true
+  conditions: []
+  actions:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.spa_filter_cycle_2_start_time
+      data:
+        time: '10:00:00'
+    - action: time.set_value
+      metadata: {}
+      data:
+        time: '10:00:00'
+      target:
+        entity_id: time.filter_cycle_2_begins
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.spa_filter_cycle_2_run_duration
+      data:
+        time: 02:00:00
+    - action: time.set_value
+      metadata: {}
+      data:
+        time: 02:00:00
+      target:
+        entity_id: time.filter_cycle_2_runs
+  mode: single
