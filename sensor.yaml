@@ -202,19 +202,3 @@
       friendly_name: "Current Off Peak End"
       value_template: >-
         {{ state_attr('binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching', 'current_end') }}
-
-- platform: template
-  sensors:
-    spa_filter_cycle_2_start_time:
-      unique_id: 497e16d0-f1b7-4f4e-9be4-f84a224f15c7
-      friendly_name: "Spa Filter Cycle 2 Start Time"
-      value_template: >-
-        {{ as_timestamp(states('sensor.next_off_peak_rate_start_time')) | timestamp_custom('%H:%M') }}
-
-- platform: template
-  sensors:
-    spa_filter_cycle_2_run_duration:
-      unique_id: 25cf8fad-9a07-4476-9121-b7f235d6d346
-      friendly_name: "Spa Filter Cycle 2 Run Duration"
-      value_template: >-
-        {{ (as_timestamp(states('sensor.current_off_peak_rate_end_time')) - as_timestamp(states('sensor.next_off_peak_rate_start_time')) - 3600) | timestamp_custom('%H:%M')}}

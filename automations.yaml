@@ -271,9 +271,7 @@
 - id: '1302984839203'
   alias: Tariffs - Switch electricity tariff
   description: Set electricity tariff for utility sensor
-  variables:
-    tariff: offpeak
-  trigger:
+  triggers:
     - trigger: state
       entity_id:
         - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
@@ -296,8 +294,9 @@
       at: 05:30:00
       variables:
         tariff: peak
-  condition: []
-  action:
+      enabled: false
+  conditions: []
+  actions:
     - action: select.select_option
       target:
         entity_id: select.daily_grid
@@ -333,6 +332,8 @@
         entity_id: input_number.electricity_tariff_cost
       data:
         value: '{% set cost = dict(peak=0.23713, offpeak=0.07) %} {{ cost[tariff] }} '
+  variables:
+    tariff: offpeak
   mode: single
 - id: '1019847854392'
   alias: Inverter - Refresh local energy readings
@@ -1190,4 +1191,31 @@
       data: {}
       target:
         entity_id: input_boolean.spa_water_top_up
+  mode: single
+- id: '1734782261315'
+  alias: 'Spa Filter Cycle 2 Morning Off Peak '
+  description: ''
+  triggers:
+    - trigger: state
+      entity_id:
+        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
+      from: 'off'
+      to: 'on'
+  conditions:
+    - condition: time
+      after: 09:00:00
+      before: '11:00:00'
+  actions:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.spa_filter_cycle_2_start_time
+      data:
+        time: '{{ as_timestamp(states(''sensor.next_off_peak_rate_start_time'')) | timestamp_custom(''%H:%M'')
+        }}'
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.spa_filter_cycle_2_run_duration
+      data:
+        time: '{{ (as_timestamp(states(''sensor.current_off_peak_rate_end_time'')) -
+        as_timestamp(states(''sensor.next_off_peak_rate_start_time'')) - 3600) | timestamp_custom(''%H:%M'')}}'
   mode: single
