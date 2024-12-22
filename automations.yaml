@@ -1165,7 +1165,7 @@
   triggers:
     - trigger: sun
       event: sunrise
-      offset: 0
+      offset: 00:45:00
     - trigger: time
       at: '23:00:00'
   conditions: []
