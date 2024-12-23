@@ -1170,7 +1170,9 @@
       offset: 00:45:00
     - trigger: time
       at: '23:00:00'
-  conditions: []
+  conditions:
+    - condition: template
+      value_template: '{{ (now().month, now().day) != (12, 25) }}'
   actions:
     - type: turn_off
       device_id: 650163cb259a651cd1b5167e4a0ba955
@@ -1202,7 +1204,7 @@
         entity_id: input_boolean.spa_water_top_up
   mode: single
 - id: '1734782261315'
-  alias: 'Spa Filter Cycle 2 Day Off Peak'
+  alias: Spa Filter Cycle 2 Day Off Peak
   description: ''
   triggers:
     - trigger: state
@@ -1225,8 +1227,8 @@
       target:
         entity_id: input_datetime.spa_filter_cycle_2_run_duration
       data:
-        time: '{{ (as_timestamp(states(''sensor.next_off_peak_rate_end_time'')) -
-        as_timestamp(states(''sensor.next_off_peak_rate_start_time'')) - 3600) | timestamp_custom(''%H:%M'')}}'
+        time: '{{ (as_timestamp(states(''sensor.next_off_peak_rate_end_time'')) - as_timestamp(states(''sensor.next_off_peak_rate_start_time''))
+        - 3600) | timestamp_custom(''%H:%M'')}}'
   mode: single
 - id: '1734783186956'
   alias: Reset Filter Cycle 2
