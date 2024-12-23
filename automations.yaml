@@ -714,12 +714,6 @@
         - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
       from: 'on'
       to: 'off'
-    - trigger: state
-      entity_id:
-        - binary_sensor.tesla_wall_connector_vehicle_connected
-      from:
-      to: 'off'
-      enabled: false
   conditions:
     - condition: template
       value_template: '{{ states(''sensor.solax_local_battery_setting_start_charge'')
@@ -1261,4 +1255,67 @@
         time: 02:00:00
       target:
         entity_id: time.filter_cycle_2_runs
+  mode: single
+- id: '1734947696262'
+  alias: Battery - Enable forced charge during night tariff - Car Unplugged
+  description: ''
+  triggers:
+    - trigger: state
+      entity_id:
+        - binary_sensor.tesla_wall_connector_vehicle_connected
+      from:
+      to: 'off'
+  conditions:
+    - condition: template
+      value_template: '{{ states(''sensor.solax_local_battery_setting_start_charge'')
+      != ''23:30'' }}'
+  actions:
+    - repeat:
+        sequence:
+          - action: rest_command.solax_local_set_forced_charge_start
+            data:
+              value: '{%set next_off_peak_start = as_timestamp(state_attr(''binary_sensor.octopus_energy_electricity_20e5176819_2000052794266_off_peak'', ''next_start''))%}
+                      {% set hour = next_off_peak_start | timestamp_custom
+                        (''%H'')|int %}
+                      {% set minute = next_off_peak_start | timestamp_custom
+                        (''%M'')|int %}
+                      {{ hour + minute * 256 }}'
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 15
+              milliseconds: 0
+          - action: homeassistant.update_entity
+            data:
+              entity_id:
+                - sensor.solax_rest_local_settings
+        until:
+          - condition: template
+            value_template: '{{ states(''sensor.solax_local_battery_setting_start_charge'')
+          == as_timestamp(state_attr(''binary_sensor.octopus_energy_electricity_20e5176819_2000052794266_off_peak'', ''next_start''))|timestamp_custom
+          (''%H:%M'') or repeat.index == 3 }}'
+    - repeat:
+        sequence:
+          - action: rest_command.solax_local_set_forced_charge_stop
+            data:
+              value: '{%set next_off_peak_end = as_timestamp(state_attr(''binary_sensor.octopus_energy_electricity_20e5176819_2000052794266_off_peak'', ''next_end''))%}
+  {% set hour = next_off_peak_end | timestamp_custom
+    (''%H'')|int %}
+  {% set minute = next_off_peak_end | timestamp_custom
+    (''%M'')|int %}
+  {{ hour + minute * 256 }}'
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 15
+              milliseconds: 0
+          - action: homeassistant.update_entity
+            data:
+              entity_id:
+                - sensor.solax_rest_local_settings
+        until:
+          - condition: template
+            value_template: '{{ states(''sensor.solax_local_battery_setting_stop_charge'')
+          == as_timestamp(state_attr(''binary_sensor.octopus_energy_electricity_20e5176819_2000052794266_off_peak'', ''next_end''))|timestamp_custom
+          (''%H:%M'') or repeat.index == 3 }}'
   mode: single
