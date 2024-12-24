@@ -1229,7 +1229,7 @@
   description: ''
   triggers:
     - trigger: time
-      at: '11:15:00'
+      at: '21:15:00'
       enabled: true
   conditions: []
   actions:
@@ -1274,12 +1274,10 @@
         sequence:
           - action: rest_command.solax_local_set_forced_charge_start
             data:
-              value: '{%set next_off_peak_start = as_timestamp(state_attr(''binary_sensor.octopus_energy_electricity_20e5176819_2000052794266_off_peak'', ''next_start''))%}
-                      {% set hour = next_off_peak_start | timestamp_custom
-                        (''%H'')|int %}
-                      {% set minute = next_off_peak_start | timestamp_custom
-                        (''%M'')|int %}
-                      {{ hour + minute * 256 }}'
+              value: '{%set next_off_peak_start = as_timestamp(state_attr(''binary_sensor.octopus_energy_electricity_20e5176819_2000052794266_off_peak'',
+            ''next_start''))%} {% set hour = next_off_peak_start | timestamp_custom
+            (''%H'')|int %} {% set minute = next_off_peak_start | timestamp_custom
+            (''%M'')|int %} {{ hour + minute * 256 }}'
           - delay:
               hours: 0
               minutes: 0
@@ -1292,18 +1290,16 @@
         until:
           - condition: template
             value_template: '{{ states(''sensor.solax_local_battery_setting_start_charge'')
-          == as_timestamp(state_attr(''binary_sensor.octopus_energy_electricity_20e5176819_2000052794266_off_peak'', ''next_start''))|timestamp_custom
-          (''%H:%M'') or repeat.index == 3 }}'
+          == as_timestamp(state_attr(''binary_sensor.octopus_energy_electricity_20e5176819_2000052794266_off_peak'',
+          ''next_start''))|timestamp_custom (''%H:%M'') or repeat.index == 3 }}'
     - repeat:
         sequence:
           - action: rest_command.solax_local_set_forced_charge_stop
             data:
-              value: '{%set next_off_peak_end = as_timestamp(state_attr(''binary_sensor.octopus_energy_electricity_20e5176819_2000052794266_off_peak'', ''next_end''))%}
-  {% set hour = next_off_peak_end | timestamp_custom
-    (''%H'')|int %}
-  {% set minute = next_off_peak_end | timestamp_custom
-    (''%M'')|int %}
-  {{ hour + minute * 256 }}'
+              value: '{%set next_off_peak_end = as_timestamp(state_attr(''binary_sensor.octopus_energy_electricity_20e5176819_2000052794266_off_peak'',
+            ''next_end''))%} {% set hour = next_off_peak_end | timestamp_custom (''%H'')|int
+            %} {% set minute = next_off_peak_end | timestamp_custom (''%M'')|int %}
+            {{ hour + minute * 256 }}'
           - delay:
               hours: 0
               minutes: 0
@@ -1316,6 +1312,6 @@
         until:
           - condition: template
             value_template: '{{ states(''sensor.solax_local_battery_setting_stop_charge'')
-          == as_timestamp(state_attr(''binary_sensor.octopus_energy_electricity_20e5176819_2000052794266_off_peak'', ''next_end''))|timestamp_custom
-          (''%H:%M'') or repeat.index == 3 }}'
+          == as_timestamp(state_attr(''binary_sensor.octopus_energy_electricity_20e5176819_2000052794266_off_peak'',
+          ''next_end''))|timestamp_custom (''%H:%M'') or repeat.index == 3 }}'
   mode: single
