@@ -1167,6 +1167,8 @@
   conditions:
     - condition: template
       value_template: '{{ (now().month, now().day) != (12, 25) }}'
+    - condition: template
+      value_template: '{{ (now().month, now().day) != (12, 31) }}'
   actions:
     - type: turn_off
       device_id: 650163cb259a651cd1b5167e4a0ba955
