@@ -1244,9 +1244,11 @@
   alias: Reset Filter Cycle 2
   description: ''
   triggers:
-    - trigger: time
-      at: '21:15:00'
-      enabled: true
+    - trigger: state
+      entity_id:
+        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
+      from: 'on'
+      to: 'off'
   conditions: []
   actions:
     - action: input_datetime.set_datetime
