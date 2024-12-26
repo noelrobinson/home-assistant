@@ -1219,12 +1219,26 @@
       data:
         time: '{{ as_timestamp(states(''sensor.current_off_peak_rate_start_time'')) | timestamp_custom(''%H:%M'')
         }}'
+    - action: time.set_value
+      metadata: { }
+      data:
+        time: '{{ as_timestamp(states(''sensor.current_off_peak_rate_start_time'')) | timestamp_custom(''%H:%M'')
+         }}'
+      target:
+        entity_id: time.filter_cycle_2_begins
     - action: input_datetime.set_datetime
       target:
         entity_id: input_datetime.spa_filter_cycle_2_run_duration
       data:
         time: '{{ (as_timestamp(states(''sensor.current_off_peak_rate_end_time'')) - as_timestamp(states(''sensor.current_off_peak_rate_start_time''))
         - 3600) | timestamp_custom(''%H:%M'')}}'
+    - action: time.set_value
+      metadata: { }
+      data:
+        time: '{{ (as_timestamp(states(''sensor.current_off_peak_rate_end_time'')) - as_timestamp(states(''sensor.current_off_peak_rate_start_time''))
+        - 3600) | timestamp_custom(''%H:%M'')}}'
+      target:
+        entity_id: time.filter_cycle_2_runs
   mode: single
 - id: '1734783186956'
   alias: Reset Filter Cycle 2
