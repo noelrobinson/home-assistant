@@ -1217,13 +1217,13 @@
       target:
         entity_id: input_datetime.spa_filter_cycle_2_start_time
       data:
-        time: '{{ as_timestamp(states(''sensor.next_off_peak_rate_start_time'')) | timestamp_custom(''%H:%M'')
+        time: '{{ as_timestamp(states(''sensor.current_off_peak_rate_start_time'')) | timestamp_custom(''%H:%M'')
         }}'
     - action: input_datetime.set_datetime
       target:
         entity_id: input_datetime.spa_filter_cycle_2_run_duration
       data:
-        time: '{{ (as_timestamp(states(''sensor.next_off_peak_rate_end_time'')) - as_timestamp(states(''sensor.next_off_peak_rate_start_time''))
+        time: '{{ (as_timestamp(states(''sensor.current_off_peak_rate_end_time'')) - as_timestamp(states(''sensor.current_off_peak_rate_start_time''))
         - 3600) | timestamp_custom(''%H:%M'')}}'
   mode: single
 - id: '1734783186956'

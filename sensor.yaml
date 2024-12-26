@@ -199,6 +199,14 @@
 
 - platform: template
   sensors:
+    current_off_peak_rate_start_time:
+      unique_id: 518bf0a1-c5e3-4bf2-ab24-dbb6c8e774a0
+      friendly_name: "Current Off Peak Start"
+      value_template: >-
+        {{ state_attr('binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching', 'current_start') }}
+
+- platform: template
+  sensors:
     current_off_peak_rate_end_time:
       unique_id: 66081380-0668-415c-9c7e-fcb8533c3e52
       friendly_name: "Current Off Peak End"
