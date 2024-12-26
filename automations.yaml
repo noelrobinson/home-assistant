@@ -828,13 +828,18 @@
           11 or repeat.index == 3 }}'
   mode: single
 - id: '1693997255329'
-  alias: Close gates @ 23:31 Every Night
+  alias: Close gates
   description: ''
-  trigger:
+  triggers:
     - trigger: time
       at: '23:31:00'
-  condition: []
-  action:
+    - trigger: state
+      entity_id:
+        - binary_sensor.tesla_wall_connector_vehicle_connected
+      from:
+      to: 'on'
+  conditions: []
+  actions:
     - type: turn_on
       device_id: f026eddf710c85a131f11c071f912d81
       entity_id: 6bcc6e79f9145622d02e31a5704f1199
@@ -1217,26 +1222,28 @@
       target:
         entity_id: input_datetime.spa_filter_cycle_2_start_time
       data:
-        time: '{{ as_timestamp(states(''sensor.current_off_peak_rate_start_time'')) | timestamp_custom(''%H:%M'')
-        }}'
+        time: '{{ as_timestamp(states(''sensor.current_off_peak_rate_start_time''))
+        | timestamp_custom(''%H:%M'') }}'
     - action: time.set_value
-      metadata: { }
+      metadata: {}
       data:
-        time: '{{ as_timestamp(states(''sensor.current_off_peak_rate_start_time'')) | timestamp_custom(''%H:%M'')
-         }}'
+        time: '{{ as_timestamp(states(''sensor.current_off_peak_rate_start_time''))
+        | timestamp_custom(''%H:%M'') }}'
       target:
         entity_id: time.filter_cycle_2_begins
     - action: input_datetime.set_datetime
       target:
         entity_id: input_datetime.spa_filter_cycle_2_run_duration
       data:
-        time: '{{ (as_timestamp(states(''sensor.current_off_peak_rate_end_time'')) - as_timestamp(states(''sensor.current_off_peak_rate_start_time''))
-        - 3600) | timestamp_custom(''%H:%M'')}}'
+        time: '{{ (as_timestamp(states(''sensor.current_off_peak_rate_end_time'')) -
+        as_timestamp(states(''sensor.current_off_peak_rate_start_time'')) - 3600)
+        | timestamp_custom(''%H:%M'')}}'
     - action: time.set_value
-      metadata: { }
+      metadata: {}
       data:
-        time: '{{ (as_timestamp(states(''sensor.current_off_peak_rate_end_time'')) - as_timestamp(states(''sensor.current_off_peak_rate_start_time''))
-        - 3600) | timestamp_custom(''%H:%M'')}}'
+        time: '{{ (as_timestamp(states(''sensor.current_off_peak_rate_end_time'')) -
+        as_timestamp(states(''sensor.current_off_peak_rate_start_time'')) - 3600)
+        | timestamp_custom(''%H:%M'')}}'
       target:
         entity_id: time.filter_cycle_2_runs
   mode: single
@@ -1332,4 +1339,20 @@
             value_template: '{{ states(''sensor.solax_local_battery_setting_stop_charge'')
           == as_timestamp(state_attr(''binary_sensor.octopus_energy_electricity_20e5176819_2000052794266_off_peak'',
           ''next_end''))|timestamp_custom (''%H:%M'') or repeat.index == 3 }}'
+  mode: single
+- id: '1735250385216'
+  alias: Open Gates
+  description: ''
+  triggers:
+    - trigger: state
+      entity_id:
+        - binary_sensor.tesla_wall_connector_vehicle_connected
+      from:
+      to: 'off'
+  conditions: []
+  actions:
+    - type: turn_on
+      device_id: afcb7a62c88eb03f866095cc34b56385
+      entity_id: 4c85a601a8b95f54a46656b1eee59515
+      domain: switch
   mode: single
