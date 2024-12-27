@@ -668,8 +668,8 @@
         sequence:
           - action: rest_command.solax_local_set_forced_charge_start
             data:
-              value: '{% set hour = as_timestamp(states(''sensor.next_off_peak_rate_start_time''))|timestamp_custom
-            (''%H'')|int %} {% set minute = as_timestamp(states(''sensor.next_off_peak_rate_start_time''))|timestamp_custom
+              value: '{% set hour = as_timestamp(now())|timestamp_custom
+            (''%H'')|int %} {% set minute = as_timestamp(now())|timestamp_custom
             (''%M'')|int %} {{ hour + minute * 256 }}'
           - delay:
               hours: 0
@@ -1222,13 +1222,11 @@
       target:
         entity_id: input_datetime.spa_filter_cycle_2_start_time
       data:
-        time: '{{ as_timestamp(states(''sensor.current_off_peak_rate_start_time''))
-        | timestamp_custom(''%H:%M'') }}'
+        time: '{{ as_timestamp(now()) | timestamp_custom(''%H:%M'') }}'
     - action: time.set_value
       metadata: {}
       data:
-        time: '{{ as_timestamp(states(''sensor.current_off_peak_rate_start_time''))
-        | timestamp_custom(''%H:%M'') }}'
+        time: '{{ as_timestamp(now()) | timestamp_custom(''%H:%M'') }}'
       target:
         entity_id: time.filter_cycle_2_begins
     - action: input_datetime.set_datetime
@@ -1236,14 +1234,12 @@
         entity_id: input_datetime.spa_filter_cycle_2_run_duration
       data:
         time: '{{ (as_timestamp(states(''sensor.current_off_peak_rate_end_time'')) -
-        as_timestamp(states(''sensor.current_off_peak_rate_start_time'')) - 3600)
-        | timestamp_custom(''%H:%M'')}}'
+        as_timestamp(now()) - 3600) | timestamp_custom(''%H:%M'')}}'
     - action: time.set_value
       metadata: {}
       data:
         time: '{{ (as_timestamp(states(''sensor.current_off_peak_rate_end_time'')) -
-        as_timestamp(states(''sensor.current_off_peak_rate_start_time'')) - 3600)
-        | timestamp_custom(''%H:%M'')}}'
+        as_timestamp(now()) - 3600) | timestamp_custom(''%H:%M'')}}'
       target:
         entity_id: time.filter_cycle_2_runs
   mode: single
