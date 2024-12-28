@@ -668,9 +668,9 @@
         sequence:
           - action: rest_command.solax_local_set_forced_charge_start
             data:
-              value: '{% set hour = as_timestamp(now())|timestamp_custom
-            (''%H'')|int %} {% set minute = as_timestamp(now())|timestamp_custom
-            (''%M'')|int %} {{ hour + minute * 256 }}'
+              value: '{% set hour = as_timestamp(now())|timestamp_custom (''%H'')|int
+            %} {% set minute = as_timestamp(now())|timestamp_custom (''%M'')|int %}
+            {{ hour + minute * 256 }}'
           - delay:
               hours: 0
               minutes: 0
@@ -681,8 +681,8 @@
         until:
           - condition: template
             value_template: '{{ states(''sensor.solax_local_battery_setting_start_charge'')
-          == as_timestamp(now())|timestamp_custom
-          (''%H:%M'') or repeat.index == 3 }}'
+          == as_timestamp(now())|timestamp_custom (''%H:%M'') or repeat.index == 3
+          }}'
     - repeat:
         sequence:
           - action: rest_command.solax_local_set_forced_charge_stop
@@ -1247,11 +1247,8 @@
   alias: Reset Filter Cycle 2
   description: ''
   triggers:
-    - trigger: state
-      entity_id:
-        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
-      from: 'on'
-      to: 'off'
+    - trigger: time
+      at: '21:15:00'
   conditions: []
   actions:
     - action: input_datetime.set_datetime
