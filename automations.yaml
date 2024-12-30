@@ -836,8 +836,8 @@
     - trigger: state
       entity_id:
         - binary_sensor.tesla_wall_connector_vehicle_connected
-      from:
       to: 'on'
+      from: 'off'
   conditions: []
   actions:
     - type: turn_on
@@ -1145,7 +1145,7 @@
   triggers:
     - trigger: sun
       event: sunset
-      offset: 00:30:00
+      offset: 00:25:00
     - trigger: sun
       event: sunrise
       offset: -01:15:00
@@ -1340,8 +1340,8 @@
     - trigger: state
       entity_id:
         - binary_sensor.tesla_wall_connector_vehicle_connected
-      from:
       to: 'off'
+      from: 'on'
   conditions: []
   actions:
     - type: turn_on
