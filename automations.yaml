@@ -849,14 +849,12 @@
   alias: Freezing Forecast
   description: ''
   triggers:
-    - trigger: sun
-      event: sunset
-      offset: 0
-  conditions:
-    - condition: numeric_state
-      entity_id: weather.forecast_home
+    - trigger: numeric_state
+      entity_id:
+        - weather.forecast_home
       attribute: temperature
       below: 0
+  conditions: []
   actions:
     - device_id: a33ca33ccb3f9a2cea06a35767048af2
       domain: mobile_app
