@@ -139,7 +139,7 @@
       value_template: >-
         {% set outside_temp = states('sensor.home_realfeel_temperature')|float %}
         {% set temp_20c = 36 %}
-        {% set temp_0c = 38 %}
+        {% set temp_0c = 39 %}
         {% set max_temp = 40 %}
         {% set min_temp = 25 %}
         {% set weather_compensated_setpoint = ((((temp_20c - temp_0c) / 20) * outside_temp) + temp_0c ) | round(1, "half", default) %}
