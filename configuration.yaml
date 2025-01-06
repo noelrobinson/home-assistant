@@ -515,7 +515,7 @@ template:
       ### Estimated remaining energy ###
       - name: "Solax Local Battery Remain Energy"
         unique_id: solax_local_battery_kwh
-        state: "{{ states('sensor.solax_local_battery_soc') | int(default=0) * 11.4 / 100 }}"
+        state: "{{ states('sensor.solax_local_battery_soc') | int(default=0) * 11.6 / 100 }}"
         unit_of_measurement: "kWh"
         device_class: "energy"
 
