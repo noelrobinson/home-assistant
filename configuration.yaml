@@ -182,7 +182,7 @@ template:
         state_class: total_increasing
 
       - name: "Solax Cloud Inverter"
-        unit_of_measurement: "W"
+        unit_of_measurement: "kWh"
         state: "{{ state_attr('sensor.solax_rest_cloud', 'acpower') }}"
         unique_id: solax_cloud_inverter
         icon: mdi:flash
