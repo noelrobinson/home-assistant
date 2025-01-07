@@ -32,7 +32,7 @@
 - id: '11991293920222'
   alias: Sinks - Hot Water - Pause immersion heater (temperature reached)
   description: ''
-  trigger:
+  triggers:
     - trigger: numeric_state
       entity_id: sensor.sonoff_1001db22ba_power
       for:
@@ -40,7 +40,7 @@
         minutes: 0
         seconds: 30
       below: 100
-  condition:
+  conditions:
     - condition: state
       entity_id: switch.sonoff_1001db22ba
       state: 'on'
@@ -49,9 +49,9 @@
         minutes: 0
         seconds: 30
     - condition: time
-      after: 07:30:00
-      before: '18:30:00'
-  action:
+      after: 07:00:00
+      before: '19:00:00'
+  actions:
     - action: automation.turn_off
       data:
         stop_actions: true
@@ -125,7 +125,7 @@
 - id: '1105783920394'
   alias: Sinks - Hot Water - Start immersion heater (night start)
   description: ''
-  trigger:
+  triggers:
     - trigger: time
       at: 00:35:00
     - trigger: time
@@ -136,11 +136,11 @@
       at: 03:35:00
     - trigger: time
       at: 04:35:00
-  condition:
+  conditions:
     - condition: template
       value_template: '{{ states(''sensor.daily_hot_water_offpeak'')|float < states(''input_number.night_immersion_target'')|float
       }}'
-  action:
+  actions:
     - repeat:
         sequence:
           - type: turn_on
@@ -1393,4 +1393,33 @@
         time: '11:00:00'
       target:
         entity_id: time.octopus_energy_a_7e9f23d1_intelligent_target_time
+  mode: single
+- id: '1736267654682'
+  alias: Sinks - Hot Water - Start immersion heater (off peak day)
+  description: ''
+  triggers:
+    - trigger: state
+      entity_id:
+        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
+      from: 'off'
+      to: 'on'
+  conditions:
+    - condition: template
+      value_template: '{{ states(''sensor.daily_hot_water_offpeak'')|float < states(''input_number.night_immersion_target'')|float
+      }}'
+  actions:
+    - repeat:
+        sequence:
+          - type: turn_on
+            device_id: 0d9861537b4b848a34f2356168196e28
+            entity_id: switch.sonoff_1001db22ba
+            domain: switch
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 15
+        until:
+          - condition: template
+            value_template: '{{ states(''switch.sonoff_1001db22ba'') == ''on'' or repeat.index
+          == 3 }}'
   mode: single
