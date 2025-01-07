@@ -161,7 +161,7 @@
     reached)
   description: Turn off completely if thermostat starts turning off the heating (hot
     enough) or target achieved
-  trigger:
+  triggers:
     - trigger: numeric_state
       entity_id: sensor.sonoff_1001db22ba_power
       for:
@@ -170,11 +170,17 @@
     - trigger: template
       value_template: '{{ states(''sensor.daily_hot_water_offpeak'')|float >= states(''input_number.night_immersion_target'')|float
       }}'
-  condition:
+    - trigger: state
+      entity_id:
+        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
+      from: 'on'
+      to: 'off'
+  conditions:
     - condition: time
       after: 00:30:00
       before: 05:30:00
-  action:
+      enabled: false
+  actions:
     - repeat:
         sequence:
           - type: turn_off
