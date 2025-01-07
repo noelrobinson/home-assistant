@@ -859,7 +859,14 @@
     - device_id: a33ca33ccb3f9a2cea06a35767048af2
       domain: mobile_app
       type: notify
-      message: Freezing temps forecast, turn off outside taps
+      message: Freezing temps forecast, turn off outside shower and taps. Leave tap
+        open also.
+      title: Freezing forecast
+    - device_id: f6e97b70fadf175cae1d365dfdbaac8e
+      domain: mobile_app
+      type: notify
+      message: Freezing temps forecast, turn off outside shower and taps. Leave tap
+        open also.
       title: Freezing forecast
   mode: single
 - id: '1733731347661'
