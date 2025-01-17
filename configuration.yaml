@@ -91,7 +91,7 @@ input_number:
 
   min_battery_target:
     name: min_battery_target
-    initial: 11
+    initial: 10
     min: 10
     max: 94
 
