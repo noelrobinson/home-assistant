@@ -1405,6 +1405,7 @@
         value: '100'
       target:
         entity_id: number.octopus_energy_a_7e9f23d1_intelligent_charge_target
+      enabled: false
   mode: single
 - id: '1736267654682'
   alias: Sinks - Hot Water - Start immersion heater (off peak day)
@@ -1419,6 +1420,9 @@
     - condition: template
       value_template: '{{ states(''sensor.daily_hot_water_offpeak'')|float < states(''input_number.night_immersion_target'')|float
       }}'
+    - condition: time
+      after: 05:30:00
+      before: '23:30:00'
   actions:
     - repeat:
         sequence:
