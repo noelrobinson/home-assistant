@@ -1098,6 +1098,11 @@
       device_id: b81d1e055479a535ec428ef2f24f44c9
       entity_id: 89574fa5b8cdc46b734c5cef0184d199
       domain: switch
+    - action: light.turn_off
+      metadata: {}
+      data: {}
+      target:
+        device_id: b81d1e055479a535ec428ef2f24f44c9
   mode: single
 - id: '1734298131758'
   alias: 'Spa Top Up Off peak turn on heat mode '
