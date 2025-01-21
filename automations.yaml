@@ -377,11 +377,15 @@
 - id: '2000'
   alias: Octopus - Saving Session joiner
   description: Automatically join Octopus Saving Session Events
-  trigger:
+  triggers:
     - trigger: event
       event_type: octopus_energy_new_octoplus_saving_session
-  condition: []
-  action:
+  conditions:
+    - condition: template
+      value_template: '{{ (state_attr(''event.octopus_energy_a_7e9f23d1_octoplus_saving_session_events'',
+      ''available_events'') | selectattr(''code'', ''eq'', trigger.event.data["event_code"])
+      | list | map(attribute=''octopoints_per_kwh'') | first) >= 240}}'
+  actions:
     - action: octopus_energy.join_octoplus_saving_session_event
       data:
         event_code: '{{ trigger.event.data["event_code"] }}'
