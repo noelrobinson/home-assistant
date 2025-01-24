@@ -873,8 +873,8 @@
     - action: persistent_notification.create
       data:
         title: Freezing forecast
-        message: 'Freezing temps forecast ({{ state_attr(''weather.forecast_home'',''temperature'') }}), turn off outside shower and taps. Leave tap
-        open to allow expansion'
+        message: Freezing temps forecast ({{ state_attr('weather.forecast_home','temperature')
+          }}), turn off outside shower and taps. Leave tap open to allow expansion
   mode: single
 - id: '1733731347661'
   alias: Off Peak Tariff Heat Hot Tub
@@ -1153,7 +1153,9 @@
     - action: persistent_notification.create
       data:
         title: Windy alert
-        message: 'Windy tonight, {{ state_attr(''weather.forecast_home'',''wind_speed'') }} {{ state_attr(''weather.forecast_home'',''wind_speed_unit'') }} winds. Shut the gates and tie down hot tub lid.'
+        message: Windy tonight, {{ state_attr('weather.forecast_home','wind_speed')
+          }} {{ state_attr('weather.forecast_home','wind_speed_unit') }} winds. Shut
+          the gates and tie down hot tub lid.
   mode: single
 - id: '1734537593643'
   alias: Christmas Lights On
@@ -1478,7 +1480,7 @@
 
         '
     - action: notify.mobile_app_a063
-      metadata: { }
+      metadata: {}
       data:
         title: '{{ trigger.notification.title }}
 
@@ -1486,4 +1488,26 @@
         message: '{{ trigger.notification.message }}
 
         '
+  mode: single
+- id: '1737735686586'
+  alias: Charlie phone wireless charging
+  description: ''
+  triggers:
+    - trigger: state
+      entity_id:
+        - sensor.a063_charger_type
+      from:
+      to: wireless
+  conditions:
+    - condition: zone
+      entity_id: device_tracker.a063
+      zone: zone.home
+  actions:
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        device_id:
+          - 5a4ebe168974f06fcbde2aad14b4f3e2
+          - af1fbddbad0ddd5a494e485ec29ff287
   mode: single
