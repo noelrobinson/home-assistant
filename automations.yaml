@@ -1389,6 +1389,13 @@
         time: 07:00:00
       target:
         entity_id: time.octopus_energy_a_7e9f23d1_intelligent_target_time
+    - action: number.set_value
+      metadata: {}
+      data:
+        value: '60'
+      target:
+        entity_id: number.octopus_energy_a_7e9f23d1_intelligent_charge_target
+      enabled: true
   mode: single
 - id: '1735932118548'
   alias: Extend IO Off Peak Every Morning
@@ -1407,10 +1414,10 @@
     - action: number.set_value
       metadata: {}
       data:
-        value: '100'
+        value: '80'
       target:
         entity_id: number.octopus_energy_a_7e9f23d1_intelligent_charge_target
-      enabled: false
+      enabled: true
   mode: single
 - id: '1736267654682'
   alias: Sinks - Hot Water - Start immersion heater (off peak day)
