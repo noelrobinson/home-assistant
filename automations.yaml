@@ -931,6 +931,7 @@
         hvac_mode: 'off'
       target:
         entity_id: climate.spa_thermostat
+      enabled: false
   mode: single
 - id: '1733825294842'
   alias: Spa Fresh Fill Up
@@ -1008,7 +1009,7 @@
   description: ''
   triggers:
     - trigger: time_pattern
-      minutes: /15
+      minutes: /30
   conditions:
     - condition: state
       entity_id: binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
