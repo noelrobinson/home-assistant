@@ -890,9 +890,9 @@
     - action: climate.set_temperature
       metadata: {}
       data:
-        temperature: '{% set target_temp = states(''sensor.spa_weather_compensated_setpoint'') | float | round(0) + 2 %}
-        {% set target_temp_capped = target_temp if target_temp <= 40 else 40 %}
-        {{ target_temp_capped }}'
+        temperature: '{% set target_temp = states(''sensor.spa_weather_compensated_setpoint'')
+        | float | round(0) + 2 %} {% set target_temp_capped = target_temp if target_temp
+        <= 40 else 40 %} {{ target_temp_capped }}'
       target:
         entity_id: climate.spa_thermostat
     - action: climate.set_hvac_mode
@@ -1519,4 +1519,38 @@
         device_id:
           - 5a4ebe168974f06fcbde2aad14b4f3e2
           - af1fbddbad0ddd5a494e485ec29ff287
+  mode: single
+- id: '1738506509234'
+  alias: Cancel hot water overrides
+  description: ''
+  triggers:
+    - type: turned_on
+      device_id: 0d9861537b4b848a34f2356168196e28
+      entity_id: 0096e7894c8e7de8402fe3bcbcded89d
+      domain: switch
+      trigger: device
+  conditions: []
+  actions:
+    - action: button.press
+      metadata: {}
+      data: {}
+      target:
+        entity_id: button.wiser_cancel_hot_water_overrides
+  mode: single
+- id: '1738506644266'
+  alias: Boost Hot Water
+  description: ''
+  triggers:
+    - type: turned_off
+      device_id: 0d9861537b4b848a34f2356168196e28
+      entity_id: 0096e7894c8e7de8402fe3bcbcded89d
+      domain: switch
+      trigger: device
+  conditions: []
+  actions:
+    - action: button.press
+      metadata: {}
+      data: {}
+      target:
+        entity_id: button.wiser_boost_hot_water
   mode: single
