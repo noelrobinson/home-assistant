@@ -1536,9 +1536,16 @@
       data: {}
       target:
         entity_id: button.wiser_cancel_hot_water_overrides
+      enabled: false
+    - action: select.select_option
+      metadata: {}
+      data:
+        option: Manual
+      target:
+        entity_id: select.wiser_hot_water_mode
   mode: single
 - id: '1738506644266'
-  alias: Boost Hot Water
+  alias: Turn Off Hot Water
   description: ''
   triggers:
     - type: turned_off
@@ -1548,9 +1555,16 @@
       trigger: device
   conditions: []
   actions:
+    - action: select.select_option
+      metadata: {}
+      data:
+        option: Auto
+      target:
+        entity_id: select.wiser_hot_water_mode
     - action: button.press
       metadata: {}
       data: {}
       target:
         entity_id: button.wiser_boost_hot_water
+      enabled: false
   mode: single
