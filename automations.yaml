@@ -393,6 +393,7 @@
         entity_id: event.octopus_energy_a_7e9f23d1_octoplus_saving_session_events
     - action: persistent_notification.create
       data:
+        notification_id: alert_saving_session
         title: Octopus Saving Sessions Updated
         message: 'Joined new Octopus Energy saving session. It starts at {{ trigger.event.data["event_start"].strftime(''%H:%M'')
         }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month
@@ -872,6 +873,7 @@
   actions:
     - action: persistent_notification.create
       data:
+        notification_id: alert_freezing
         title: Freezing forecast
         message: Freezing temps forecast ({{ state_attr('weather.forecast_home','temperature')
           }}), turn off outside shower and taps. Leave tap open to allow expansion
@@ -1154,6 +1156,7 @@
   actions:
     - action: persistent_notification.create
       data:
+        notification_id: alert_windy
         title: Windy alert
         message: Windy tonight, {{ state_attr('weather.forecast_home','wind_speed')
           }} {{ state_attr('weather.forecast_home','wind_speed_unit') }} winds. Shut
@@ -1477,7 +1480,10 @@
     - trigger: persistent_notification
       update_type:
         - added
-  conditions: []
+  conditions:
+    - condition: template
+      value_template: '{{ trigger.notification.notification_id.startswith(''alert_'')
+      }}'
   actions:
     - action: notify.mobile_app_sm_s928b
       metadata: {}
