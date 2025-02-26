@@ -1408,7 +1408,10 @@
   triggers:
     - trigger: time
       at: 07:00:00
-  conditions: []
+  conditions:
+    - condition: state
+      entity_id: time.octopus_energy_a_7e9f23d1_intelligent_target_time
+      state: '7:00:00'
   actions:
     - action: time.set_value
       metadata: {}
@@ -1573,4 +1576,38 @@
       target:
         entity_id: button.wiser_boost_hot_water
       enabled: false
+  mode: single
+- id: '1739029343810'
+  alias: Off peak plug
+  description: ''
+  triggers:
+    - trigger: state
+      entity_id:
+        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
+      from: 'off'
+      to: 'on'
+  conditions: []
+  actions:
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.wiser_dehumidier_switch
+  mode: single
+- id: '1739029430054'
+  alias: Off peak plug turn off
+  description: ''
+  triggers:
+    - trigger: state
+      entity_id:
+        - binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
+      from: 'on'
+      to: 'off'
+  conditions: []
+  actions:
+    - action: switch.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.wiser_dehumidier_switch
   mode: single
