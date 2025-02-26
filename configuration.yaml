@@ -873,3 +873,17 @@ rest_command:
     url: !secret solax_local_ip
     method: post
     payload: !secret solax_local_set_manual_mode_behaviour
+
+
+homeassistant:
+  customize:
+    sensor.wifi_dual_meter_spa_cumulative_energy:
+      state_class: total_increasing
+    sensor.solax_local_battery_in_aggregated_energy:
+      device_class: energy
+    sensor.solax_local_battery_out_aggregated_energy:
+      device_class: energy
+    sensor.solax_local_grid_used_aggregated_energy:
+      device_class: energy
+    sensor.solax_local_grid_export_aggregated_energy:
+      device_class: energy
