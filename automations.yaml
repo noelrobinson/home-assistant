@@ -1411,7 +1411,7 @@
   conditions:
     - condition: state
       entity_id: time.octopus_energy_a_7e9f23d1_intelligent_target_time
-      state: '7:00:00'
+      state: 07:00:00
   actions:
     - action: time.set_value
       metadata: {}
