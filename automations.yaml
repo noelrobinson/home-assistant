@@ -892,9 +892,10 @@
     - action: climate.set_temperature
       metadata: {}
       data:
-        temperature: '{% set target_temp = states(''sensor.spa_weather_compensated_setpoint'')
-        | float | round(0) + 2 %} {% set target_temp_capped = target_temp if target_temp
-        <= 40 else 40 %} {{ target_temp_capped }}'
+        temperature: '{% set temp_increase_value = 2 if states(''sensor.home_realfeel_temperature'')
+        | float < 10 else 1 %} {% set target_temp = states(''sensor.spa_weather_compensated_setpoint'')
+        | float | round(0) + temp_increase_value %}  {% set target_temp_capped = target_temp
+        if target_temp <= 40 else 40 %} {{ target_temp_capped }}'
       target:
         entity_id: climate.spa_thermostat
     - action: climate.set_hvac_mode
