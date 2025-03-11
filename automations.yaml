@@ -1612,3 +1612,37 @@
       target:
         entity_id: switch.wiser_dehumidier_switch
   mode: single
+- id: '1741689589106'
+  alias: Mower - Open Gate
+  description: ''
+  triggers:
+    - trigger: time
+      at: '10:00:00'
+  conditions:
+    - condition: time
+      weekday:
+        - tue
+        - fri
+  actions:
+    - type: turn_on
+      device_id: 5a56916572c31eabc9627f8a9d98423a
+      entity_id: f4ab37bb3910c2da81af1d33f8fe99b7
+      domain: switch
+  mode: single
+- id: '1741689691316'
+  alias: Mower - Close gates
+  description: ''
+  triggers:
+    - trigger: time
+      at: '12:00:00'
+  conditions:
+    - condition: time
+      weekday:
+        - tue
+        - fri
+  actions:
+    - type: turn_on
+      device_id: f026eddf710c85a131f11c071f912d81
+      entity_id: 6bcc6e79f9145622d02e31a5704f1199
+      domain: switch
+  mode: single
