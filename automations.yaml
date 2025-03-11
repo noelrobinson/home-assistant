@@ -965,7 +965,7 @@
       domain: switch
   mode: single
 - id: '1733831577952'
-  alias: Spa Heat Up First Time on Cheap Tariff
+  alias: Spa Heat Up First Time on Off Peak Tariff
   description: ''
   triggers:
     - trigger: state
@@ -978,19 +978,29 @@
       entity_id: sensor.spa_heat_time
       above: 6
   actions:
-    - type: turn_on
-      device_id: b81d1e055479a535ec428ef2f24f44c9
-      entity_id: 89574fa5b8cdc46b734c5cef0184d199
-      domain: switch
-    - action: climate.set_hvac_mode
-      metadata: {}
-      data:
-        hvac_mode: heat
-      target:
-        entity_id: climate.spa_thermostat
+    - repeat:
+        sequence:
+          - type: turn_on
+            device_id: b81d1e055479a535ec428ef2f24f44c9
+            entity_id: 89574fa5b8cdc46b734c5cef0184d199
+            domain: switch
+          - action: climate.set_hvac_mode
+            metadata: {}
+            data:
+              hvac_mode: heat
+            target:
+              entity_id: climate.spa_thermostat
+          - delay:
+              hours: 0
+              minutes: 2
+              seconds: 0
+              milliseconds: 0
+        until:
+          - condition: template
+            value_template: '{{ states(''sensor.spa_heat_time'') != ''unavailable'' or repeat.index == 10 }}'
   mode: single
 - id: '1733831748049'
-  alias: Spa Heat Up First Time on Expe Tariff
+  alias: Spa Heat Up First Time on Peak Tariff
   description: ''
   triggers:
     - trigger: state
@@ -1003,10 +1013,20 @@
       entity_id: sensor.spa_heat_time
       above: 6
   actions:
-    - type: turn_off
-      device_id: b81d1e055479a535ec428ef2f24f44c9
-      entity_id: 89574fa5b8cdc46b734c5cef0184d199
-      domain: switch
+    - repeat:
+        sequence:
+          - type: turn_off
+            device_id: b81d1e055479a535ec428ef2f24f44c9
+            entity_id: 89574fa5b8cdc46b734c5cef0184d199
+            domain: switch
+          - delay:
+              hours: 0
+              minutes: 2
+              seconds: 0
+              milliseconds: 0
+        until:
+          - condition: template
+            value_template: '{{ states(''sensor.spa_heat_time'') != ''unavailable'' or repeat.index == 10 }}'
   mode: single
 - id: '1733834779510'
   alias: Set Spa Temp Every Hour during day
