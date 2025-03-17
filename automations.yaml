@@ -1409,19 +1409,29 @@
       entity_id: time.octopus_energy_a_7e9f23d1_intelligent_target_time
       state: '11:00:00'
   actions:
-    - action: time.set_value
-      metadata: {}
-      data:
-        time: 07:00:00
-      target:
-        entity_id: time.octopus_energy_a_7e9f23d1_intelligent_target_time
-    - action: number.set_value
-      metadata: {}
-      data:
-        value: '60'
-      target:
-        entity_id: number.octopus_energy_a_7e9f23d1_intelligent_charge_target
-      enabled: true
+    - repeat:
+        sequence:
+          - action: time.set_value
+            metadata: { }
+            data:
+              time: '07:00:00'
+            target:
+              entity_id: time.octopus_energy_a_7e9f23d1_intelligent_target_time
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 15
+              milliseconds: 0
+          - action: number.set_value
+            metadata: { }
+            data:
+              value: '60'
+            target:
+              entity_id: number.octopus_energy_a_7e9f23d1_intelligent_charge_target
+            enabled: true
+        until:
+          - condition: template
+            value_template: '{{ states(''time.octopus_energy_a_7e9f23d1_intelligent_target_time'') == ''07:00:00'' and states(''number.octopus_energy_a_7e9f23d1_intelligent_charge_target'') == ''60'' or repeat.index == 3 }}'
   mode: single
 - id: '1735932118548'
   alias: Extend IO Off Peak Every Morning
