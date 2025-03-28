@@ -212,3 +212,12 @@
       friendly_name: "Current Off Peak End"
       value_template: >-
         {{ state_attr('binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching', 'current_end') }}
+
+- platform: template
+  sensors:
+    tesla_wall_connector_total_energy:
+      unique_id: c64f6ef6-f14c-42d4-be65-b0aa25c50fbf
+      friendly_name: "Tesla Wall Connector Total Energy"
+      unit_of_measurement: "kWh"
+      value_template: >-
+        {{ states('sensor.tesla_wall_connector_energy') | float / 1000 }}
