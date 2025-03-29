@@ -221,3 +221,16 @@
       unit_of_measurement: "kWh"
       value_template: >-
         {{ states('sensor.tesla_wall_connector_energy') | float / 1000 }}
+
+- platform: template
+  sensors:
+    spa_cumulutive_energy_from_grid:
+      unique_id: c2eb3b85-20c6-4e5d-8316-4ce41cabdb16
+      friendly_name: "Spa Cumulative Energy from Grid"
+      unit_of_measurement: "kWh"
+      value_template: >-
+        {% if states('sensor.solax_local_grid_power') | float > 0 %}
+          {{ states('sensor.wifi_dual_meter_spa_cumulative_energy') | float | default(0) }}
+        {% else %}
+          {{ states('sensor.spa_cumulutive_energy_from_grid') | float | default(0) }}
+        {% endif %}
