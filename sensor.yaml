@@ -222,15 +222,40 @@
       value_template: >-
         {{ states('sensor.tesla_wall_connector_energy') | float / 1000 }}
 
+#- platform: template
+#  sensors:
+#    spa_cumulutive_energy_from_grid:
+#      unique_id: c2eb3b85-20c6-4e5d-8316-4ce41cabdb16
+#      friendly_name: "Spa Cumulative Energy from Grid"
+#      unit_of_measurement: "kWh"
+#      value_template: >-
+#        {% if states('sensor.solax_local_grid_power') | float > 0 %}
+#          {{ states('sensor.wifi_dual_meter_spa_cumulative_energy') | float | default(0) }}
+#        {% else %}
+#          {{ states('sensor.spa_cumulutive_energy_from_grid') | float | default(0) }}
+#        {% endif %}
+
 - platform: template
   sensors:
-    spa_cumulutive_energy_from_grid:
-      unique_id: c2eb3b85-20c6-4e5d-8316-4ce41cabdb16
-      friendly_name: "Spa Cumulative Energy from Grid"
-      unit_of_measurement: "kWh"
+    spa_realtime_energy_from_grid:
+      unique_id: 5a9755b2-4558-4930-9390-759caa2e9d8d
+      friendly_name: "Spa Realtime Energy from Grid"
+      unit_of_measurement: "W"
       value_template: >-
-        {% if states('sensor.solax_local_grid_power') | float > 0 %}
-          {{ states('sensor.wifi_dual_meter_spa_cumulative_energy') | float | default(0) }}
+        {% set grid_power_watts = states('sensor.solax_local_grid_power') | float | default(0) %}
+        {% set spa_power_watts = states('sensor.wifi_dual_meter_spa_realtime_power') | float | default(0) %}
+        {% if grid_power_watts >= spa_power_watts %}
+          {{ spa_power_watts }}
+        {% elif grid_power_watts > 0 %}
+          {{ grid_power_watts }}
         {% else %}
-          {{ states('sensor.spa_cumulutive_energy_from_grid') | float | default(0) }}
+          0
         {% endif %}
+
+- platform: integration
+  source: sensor.spa_realtime_energy_from_grid
+  name: spa_energy_from_grid
+  unit_prefix: k
+  round: 2
+#  max_sub_interval:
+#    minutes: 5

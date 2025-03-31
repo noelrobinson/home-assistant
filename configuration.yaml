@@ -832,7 +832,7 @@ utility_meter:
       - offpeak
 
   spa_energy_from_grid_total:
-    source: sensor.spa_cumulutive_energy_from_grid
+    source: sensor.spa_energy_from_grid
     name: "Spa Total Energy from Grid"
 
 ### Commands for controlling the Solax Local inverter
