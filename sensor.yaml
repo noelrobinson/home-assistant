@@ -143,7 +143,14 @@
         {% set max_temp = 40 %}
         {% set min_temp = 25 %}
         {% set weather_compensated_setpoint = ((((temp_20c - temp_0c) / 20) * outside_temp) + temp_0c ) | round(1, "half", default) %}
-        {{ weather_compensated_setpoint }}
+        {% set sunset_adjusted_setpoint = weather_compensated_setpoint + (1 if is_state('sun.sun', 'below_horizon') else 0) %}
+        {% if sunset_adjusted_setpoint > max_temp %}
+          {{ max_temp }}
+        {% elif sunset_adjusted_setpoint < min_temp %}
+          {{ min_temp}}
+        {% else %}
+          {{ sunset_adjusted_setpoint }}
+        {% endif %}
 
 - platform: template
   sensors:
