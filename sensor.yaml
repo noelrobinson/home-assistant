@@ -138,7 +138,7 @@
       unit_of_measurement: "C"
       value_template: >-
         {% set outside_temp = states('sensor.home_realfeel_temperature')|float %}
-        {% set is_1hr_before_sunset = (as_timestamp(states.sun.sun.attributes.next_setting) - as_timestamp(now())) | float <= 3600 and states('sun.sun') == 'above_horizon' %}
+        {% set is_1hr_before_sunset = (is_state('sun.sun','above_horizon') and (as_timestamp(states.sun.sun.attributes.next_setting) - as_timestamp(now())) | float <= 3600) or is_state('sun.sun', 'below_horizon') %}
         {% set temp_20c = 36 %}
         {% set temp_0c = 38.5 %}
         {% set max_temp = 40 %}
