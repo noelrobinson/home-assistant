@@ -138,12 +138,13 @@
       unit_of_measurement: "C"
       value_template: >-
         {% set outside_temp = states('sensor.home_realfeel_temperature')|float %}
+        {% set is_1hr_before_sunset = (as_timestamp(states.sun.sun.attributes.next_setting) - as_timestamp(now())) | float <= 3600 and states('sun.sun') == 'above_horizon' %}
         {% set temp_20c = 36 %}
         {% set temp_0c = 38.5 %}
         {% set max_temp = 40 %}
         {% set min_temp = 25 %}
         {% set weather_compensated_setpoint = ((((temp_20c - temp_0c) / 20) * outside_temp) + temp_0c ) | round(1, "half", default) %}
-        {% set sunset_adjusted_setpoint = weather_compensated_setpoint + (1 if is_state('sun.sun', 'below_horizon') and states('sensor.home_realfeel_temperature') | float > 10 else 0) %}
+        {% set sunset_adjusted_setpoint = weather_compensated_setpoint + (1 if is_1hr_before_sunset and states('sensor.home_realfeel_temperature') | float > 10 else 0) %}
         {% if sunset_adjusted_setpoint > max_temp %}
           {{ max_temp }}
         {% elif sunset_adjusted_setpoint < min_temp %}
