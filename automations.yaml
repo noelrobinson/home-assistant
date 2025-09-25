@@ -887,7 +887,7 @@
     - action: climate.set_temperature
       metadata: {}
       data:
-        temperature: '{% set temp_increase_value = 2 if states(''sensor.home_realfeel_temperature'')
+        temperature: '{% set temp_increase_value = 2 if states(''sensor.openweathermap_feels_like_temperature'')
         | float < 10 else 1 %} {% set target_temp = states(''sensor.spa_weather_compensated_setpoint'')
         | float | round(0) + temp_increase_value %}  {% set target_temp_capped = target_temp
         if target_temp <= 40 else 40 %} {{ target_temp_capped }}'
@@ -1030,7 +1030,7 @@
   description: ''
   triggers:
     - trigger: time_pattern
-      minutes: /30
+      minutes: /5
   conditions:
     - condition: state
       entity_id: binary_sensor.octopus_energy_a_7e9f23d1_intelligent_dispatching
@@ -1505,23 +1505,6 @@
           - condition: template
             value_template: '{{ states(''switch.sonoff_1001db22ba'') == ''on'' or repeat.index
           == 3 }}'
-  mode: single
-- id: '1737038618192'
-  alias: alert battery at 10%
-  description: ''
-  triggers:
-    - trigger: numeric_state
-      entity_id:
-        - sensor.solax_local_battery_soc
-      above: 10
-      below: 11
-  conditions: []
-  actions:
-    - device_id: a33ca33ccb3f9a2cea06a35767048af2
-      domain: mobile_app
-      type: notify
-      message: Battery at 10%
-      title: Battery low
   mode: single
 - id: '1737631720598'
   alias: Send persistent notification to phone
